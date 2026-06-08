@@ -47,6 +47,11 @@ bool logoactive = false;
 GFX_TEXTBUF MainMenu;
 
 GFX_TEXT menu_Text[50];
+
+GFX_TEXTBUF DebugMainText;
+
+GFX_TEXT dmt_Text[50];
+
 float how_much_in_flash;
 bool flashActive;
 float FADE_DURATION;
@@ -96,6 +101,7 @@ void sceneMainMenuInit(void) {
     dt = 0.0f;
     
 	MainMenu = GFX_TextBufNew(2048);
+    DebugMainText = GFX_TextBufNew(2048);
     GFX_TextBufClear(MainMenu);  
 	GFX_TextParse(&menu_Text[0], MainMenu, "Wciśnij A");
 	GFX_TextParse(&menu_Text[1], MainMenu, "Wprowadź Numer Telefonu (+48)");
@@ -169,18 +175,7 @@ void sceneMainMenuInit(void) {
             cJSON_Delete(jsonfl);
         }
 	}
-    #ifdef DEBUG
-        GFX_TextParse(
-        &menu_Text[2],
-        MainMenu,
-        "Build date: " __DATE__ " " __TIME__
-        " (DEBUG BUILD)");
-    #else
-        GFX_TextParse(
-        &menu_Text[2],
-        MainMenu,
-        "Ver 1.0.3");
-    #endif              
+         
 }
 
 void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
@@ -336,6 +331,27 @@ void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
             }
         }
     }
+    GFX_TextBufClear(DebugMainText);  
+    #ifdef DEBUG
+        if (!logplz) {
+            GFX_TextParse(
+            &dmt_Text[2],
+            DebugMainText,
+            "Build date: " __DATE__ " " __TIME__
+            " (DEBUG BUILD)");
+        } else {
+            GFX_TextParse(
+            &dmt_Text[2],
+            DebugMainText,
+            "Build date: " __DATE__ " " __TIME__
+            " (DEBUG BUILD) - logs on");            
+        }
+    #else
+        GFX_TextParse(
+        &dmt_Text[2],
+        DebugMainText,
+        "Ver 1.0.3");
+    #endif     
 }
 void drawMainMenuTop(float offset) {
 	GFX_DrawImageAt(bg_top, bg_x - 560 + offset, 0.0f, 0.0f, NULL, 1.0f, 1.0f);
@@ -372,7 +388,7 @@ void drawMainMenuTop(float offset) {
 		GFX_DrawShadowedText(&menu_Text[1], 200.0f + offset, y, 1.0f, bounceTextScale, bounceTextScale, GFX_ALIGN_CENTER, GFX_COLOR_RGBA(0xB1, 0xA2, 0x2F, 0xff), GFX_COLOR_RGBA(0xff, 0xff, 0xff, 0xff));
 	}
     
-    GFX_DrawShadowedText(&menu_Text[2], 10.0f, 220, 1.0f, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(0xB1, 0xA2, 0x2F, 0xff), GFX_COLOR_RGBA(0xff, 0xff, 0xff, 0xff));
+    GFX_DrawShadowedText(&dmt_Text[2], 10.0f, 220, 1.0f, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(0xB1, 0xA2, 0x2F, 0xff), GFX_COLOR_RGBA(0xff, 0xff, 0xff, 0xff));
 
     if (showTutorialConfirmation) {
         float pT = tutorialPopupAnimTimer / TUTORIAL_POPUP_DURATION;

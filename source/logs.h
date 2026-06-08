@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <3ds.h>
 #include <stdarg.h>
-#define LOG_FILE "/3ds/inpost_log.txt"
+#define LOG_FILE "/3ds/InPost3DS/inpost_logi.txt"
 extern bool logplz;
 void init_logger();
 u64 get_free_mem();

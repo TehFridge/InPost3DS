@@ -51,8 +51,9 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
     size_t total_size = size * nmemb;
     ResponseBuffer *buf = (ResponseBuffer *)userdata;
 
+    buf->done = false; 
+
     size_t needed_size = buf->size + total_size + 1;
-    
     char *new_data = realloc(buf->data, needed_size);
     if (!new_data) {
         log_to_file("[write_callback] ERROR: realloc failed");
@@ -66,6 +67,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
 
     return total_size;
 }
+
 void log_message(const char *format, ...) {
     va_list args;
     va_start(args, format);
@@ -166,15 +168,12 @@ retry_request:
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
     if (res != CURLE_OK) {
-        if (!doing_debug_logs) {
-            log_to_file("[refresh_data] ERROR: %s", curl_easy_strerror(res));
-        }
         request_failed = true;
+        response_buf->done = false; 
     } else {
-        if (!doing_debug_logs) {
-            log_to_file("[refresh_data] Success. Code: %ld", response_code);
-        }
+        response_buf->done = true; 
     }
+
     log_to_file("[refresh_data] Response Body:\n%s", response_buf->data);
 
     LightLock_Lock(&global_response_lock);

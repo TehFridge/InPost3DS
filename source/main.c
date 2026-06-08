@@ -90,8 +90,6 @@ int main(int argc, char* argv[]) {
     
     GFX_TEXTBUF memBuf = GFX_TextBufNew(1024); 
     GFX_TEXT memtext[6]; 
-    
-    
     memset(memtext, 0, sizeof(memtext));
 
     consoleClear();
