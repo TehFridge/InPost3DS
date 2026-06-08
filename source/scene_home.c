@@ -32,7 +32,35 @@ static int formatIsoDateTime(const char* iso, char* out, size_t outsz) {
     if (n < 5) n = sscanf(iso, "%4d-%2d-%2dT%2d:%2d", &y, &m, &d, &hh, &mm);
     if (n < 5) return 0;
 
-    int written = snprintf(out, outsz, "%02d.%02d.%04d | %02d:%02d", d, m, y, hh, mm);
+    // hack żeby apka pokazywała poprawny czas: hardcoded europe/warsaw
+    struct tm time = {0};
+    int isDst = 0;
+
+    time.tm_sec = ss;
+    time.tm_min = mm;
+    time.tm_hour = hh;
+    time.tm_mday = d;
+    time.tm_mon = m - 1;
+    time.tm_year = y - 1900;
+
+    mktime(&time); // żeby przeliczyło dzień tygodnia
+
+    if (time.tm_mon > 2 && time.tm_mon < 9) isDst = 1;
+
+    if (time.tm_mon == 2) {
+        if ((time.tm_mday - time.tm_wday) >= 25) isDst = 1;
+    }
+    if (time.tm_mon == 9) {
+        if ((time.tm_mday - time.tm_wday) < 25) isDst = 1;
+    }
+
+    if (isDst) {
+        time.tm_hour += 2;
+    } else {
+        time.tm_hour += 1;
+    }
+
+    int written = snprintf(out, outsz, "%02d.%02d.%04d | %02d:%02d", time.tm_mday, time.tm_mon + 1, time.tm_year + 1900, time.tm_hour, time.tm_min);
     return (written > 0 && (size_t)written < outsz) ? 1 : 0;
 }
 
