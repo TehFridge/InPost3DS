@@ -39,6 +39,8 @@ typedef struct NtpPacket {
 } NtpPacket;
 
 typedef enum {
+    STATE_CHECK_DSP,
+    STATE_NO_DSP_FIRM,
     STATE_CHECK_WIFI,
     STATE_NO_WIFI,
     STATE_TEST_CONNECTION, 
@@ -53,7 +55,7 @@ typedef enum {
 
 static InitState currentState;
 static GFX_TEXTBUF staticTextBuf;
-static GFX_TEXT txtNoWifi, txtCertError, txtNtpFixing, txtTitle, txtOptA, txtOptX, txtOptY, txtOptB;
+static GFX_TEXT txtNoWifi, txtCertError, txtNoDspFirm, txtNtpFixing, txtTitle, txtOptA, txtOptX, txtOptY, txtOptB;
 
 static float animTimer = 0.0f;
 static float animFactor = 0.0f; 
@@ -144,7 +146,7 @@ int random_val;
 
 void sceneInitInit(void) {
     VA_YES = true;
-    currentState = STATE_CHECK_WIFI;
+    currentState = STATE_CHECK_DSP;
     animTimer = 0.0f;
     animFactor = 0.0f;
     testRequestSent = false;
@@ -157,6 +159,7 @@ void sceneInitInit(void) {
     GFX_TextParse(&txtNoWifi, staticTextBuf, "Brak Internetu, podłącz aplikacje do internetu");
     GFX_TextParse(&txtCertError, staticTextBuf, "CERT ERROR!\nCzas w 3DS'ie jest niepoprawny, zmień go na aktualny\nWciśnij (START) by wyjść.");
     GFX_TextParse(&txtNtpFixing, staticTextBuf, "Błąd SSL. Próba naprawy czasu (NTP)...");
+    GFX_TextParse(&txtNoDspFirm, staticTextBuf, "Brak oprogramowania DSP.\nW Rosalina Menu (L + D-Pad dół + Select)\nwybierz \"Miscellaneous options\",\na następnie \"Dump DSP firmware\"\nWciśnij (START) by wyjść.");
     
     GFX_TextParse(&txtTitle, staticTextBuf, "Wybierz głos nawigatora głosowego");
     
@@ -193,6 +196,18 @@ void sceneInitInit(void) {
 void sceneInitUpdate(uint32_t kDown, uint32_t kHeld) {
     if (random_val != 213) {
         switch (currentState) {
+            case STATE_CHECK_DSP:
+                if (access("/3ds/dspfirm.cdc", F_OK) == 0) {
+                    currentState = STATE_CHECK_WIFI;
+                } else {
+                    currentState = STATE_NO_DSP_FIRM;
+                }
+                break;
+            case STATE_NO_DSP_FIRM:
+                if (kDown & KEY_START) {
+
+                }
+                break;
             case STATE_CHECK_WIFI:
                 if (osGetWifiStrength() > 0) {
                     currentState = STATE_TEST_CONNECTION;
@@ -390,6 +405,13 @@ void sceneInitRender(void) {
         float textW = 0, textH = 0;
         GFX_TextGetDimensions(&txtCertError, 0.5f, 0.5f, &textW, &textH);
         GFX_DrawText(&txtCertError, (screenW - textW)/2, (screenH - textH)/2, 0, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(255, 0, 0, 255));
+        return;
+    }
+
+    if (currentState == STATE_NO_DSP_FIRM) {
+        float textW = 0, textH = 0;
+        GFX_TextGetDimensions(&txtNoDspFirm, 0.5f, 0.5f, &textW, &textH);
+        GFX_DrawText(&txtNoDspFirm, (screenW - textW)/2, (screenH - textH)/2, 0, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(255, 0, 0, 255));
         return;
     }
 
