@@ -40,7 +40,7 @@ GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 #---------------------------------------------------------------------------------
-APP_VER				:= 1027
+APP_VER				:= 1028
 APP_TITLE			:= InPost3DS
 APP_DESCRIPTION		:= Klient InPostu na Nintendo 3DS
 APP_AUTHOR			:= TehFridge

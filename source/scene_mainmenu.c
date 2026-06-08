@@ -350,7 +350,7 @@ void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
         GFX_TextParse(
         &dmt_Text[2],
         DebugMainText,
-        "Ver 1.0.3");
+        "Ver 1.0.4");
     #endif     
 }
 void drawMainMenuTop(float offset) {
