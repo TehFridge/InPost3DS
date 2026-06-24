@@ -103,7 +103,7 @@ void parseRefreshedToken(const char* json)
     }
 
     cJSON *rootenmach = NULL;
-    open_json("/3ds/in_post_dane.json", &rootenmach);
+    open_json("/3ds/InPost3DS/in_post_dane.json", &rootenmach);
 
     if (!rootenmach) {
         log_to_file("[parseRefreshedToken] failed to open stored json");
@@ -125,7 +125,7 @@ void parseRefreshedToken(const char* json)
         }
     }
 
-    save_json("/3ds/in_post_dane.json", rootenmach);
+    save_json("/3ds/InPost3DS/in_post_dane.json", rootenmach);
 
     cJSON_Delete(rootenmach);
     cJSON_Delete(root);
@@ -510,12 +510,11 @@ void getPersonalData() {
     queue_request("https://api-inmobile-pl.easypack24.net/izi/app/shopping/v2/profile", NULL, headers, &dane_usera, false);
 }
 
-// przeparsuj dane z getPersonalData do in_post_dane.json
+// przeparsuj dane z getPersonalData do personal_dane.json
 void parsePersonalData(const char* json){
     pers_data_done = false;
     cJSON *root = cJSON_Parse(json);
-    cJSON *rootenmach = NULL;
-    open_json("romfs:/test_data.json", &rootenmach);
+    cJSON *rootenmach = cJSON_CreateObject();
 
     
     cJSON *personal = cJSON_GetObjectItemCaseSensitive(root, "personal");
@@ -550,7 +549,7 @@ void parsePersonalData(const char* json){
     cJSON_AddItemToObject(rootenmach, "adres_pref_paczkomatu", adres_array);
 
 
-    save_json("/3ds/in_post_dane.json", rootenmach);
+    save_json("/3ds/InPost3DS/personal_dane.json", rootenmach);
     pers_data_done = true;
     cJSON_Delete(root);
 }

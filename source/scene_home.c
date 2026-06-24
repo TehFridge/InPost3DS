@@ -311,7 +311,14 @@ void sceneHomeMenuInit(void) {
     C2D_PlainImageTint(&dotTint, GFX_COLOR_RGBA(255, 255, 255, 255), 1.0f);
     C2D_PlainImageTint(&shadowTint, GFX_COLOR_RGBA(0, 0, 0, 80), 1.0f);
     tryToGetPaczkas = false;
-    tryToGetPersonalData = false;
+    if (osGetWifiStrength() > 0) {
+        tryToGetPersonalData = false;
+    } else {
+        tryToGetPaczkas = true;
+        tryToGetPersonalData = true;
+        paczkas.done = true;
+        pers_data_done = true;
+    }
     paczkasparsed = false;
     inDetailsMode = false;
     showingQrMode = false;
@@ -496,12 +503,45 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
     if (debugmode && pers_data_done && (kDown & KEY_X)){
         sceneManagerSwitchTo(SCENE_DEBUG);
     }
-    if (paczkas.done && !paczkasparsed){
+    if (paczkas.done && !paczkasparsed)
+    {
         if (fake_paczka_mode)
+        {
             parseFakePaczkas();
+        }
         else
-            parsePaczkas((const char*)paczkas.data);
+        {
+            if (osGetWifiStrength() > 0)
+            {
+                FILE *f = fopen("/3ds/InPost3DS/paczki.json", "w");
+                if (f)
+                {
+                    fputs((const char*)paczkas.data, f);
+                    fclose(f);
+                }
+                parsePaczkas((const char*)paczkas.data);
+            }
+            else
+            {
+                FILE *f = fopen("/3ds/InPost3DS/paczki.json", "rb");
+                if (f)
+                {
+                    fseek(f, 0, SEEK_END);
+                    long size = ftell(f);
+                    rewind(f);
 
+                    char *json = malloc(size + 1);
+                    if (json)
+                    {
+                        fread(json, 1, size, f);
+                        json[size] = '\0';
+                        parsePaczkas(json);
+                        free(json);
+                    }
+                    fclose(f);
+                }
+            }
+        }
         paczkasparsed = true;
         updatePaczkaText();
     }
@@ -550,10 +590,12 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
         if (showOpenConfirmation) {
             if (popupAnimTimer >= POPUP_ANIM_DURATION * 0.5f) {
                 if (kDown & KEY_A) {
-                    requestOpenLocker();
-                    showOpenConfirmation = false;
-                    playCwav(4, true);
-                    is_in_open_paczkomat_flow = true;
+                    if (osGetWifiStrength() > 0) {
+                        requestOpenLocker();
+                        showOpenConfirmation = false;
+                        playCwav(4, true);
+                        is_in_open_paczkomat_flow = true;
+                    }
                 }
                 if (kDown & KEY_B) {
                     showOpenConfirmation = false;
@@ -1066,7 +1108,7 @@ void sceneHomeMenuRender(void) {
             float cardSize = 138.0f;
             float cardX = 160.0f - (cardSize / 2.0f);
 
-            if (!p->courier_paczka && osGetWifiStrength() > 0) {
+            if (!p->courier_paczka) {
                 GFX_DrawRectSolid(cardX + 5.0f, currentQrY - 17.50f, 0.8f, cardSize, cardSize, qrTintVal2);
                 GFX_DrawRectSolid(cardX, currentQrY - 25.0f, 0.8f, cardSize, cardSize, qrTintVal);
 
@@ -1075,22 +1117,24 @@ void sceneHomeMenuRender(void) {
                     C2D_DrawImageAt(qrCodeImg, qrX, currentQrY - 20.0f, 0.9f, NULL, 1.0f, 1.0f);
                 }
 
-                float btnTargetY = 200.0f;
-                float btnStartY = 280.0f;
-                float currentBtnY = btnStartY - ((btnStartY - btnTargetY) * detailsEnterEase);
+                if (osGetWifiStrength() > 0) {
+                    float btnTargetY = 200.0f;
+                    float btnStartY = 280.0f;
+                    float currentBtnY = btnStartY - ((btnStartY - btnTargetY) * detailsEnterEase);
 
-                float imgW = otworz_zdalnie_button->width;
-                float imgH = otworz_zdalnie_button->height;
-                float drawX = 160.0f - (imgW / 2.0f);
-                float drawY = currentBtnY - (imgH / 2.0f);
+                    float imgW = otworz_zdalnie_button->width;
+                    float imgH = otworz_zdalnie_button->height;
+                    float drawX = 160.0f - (imgW / 2.0f);
+                    float drawY = currentBtnY - (imgH / 2.0f);
 
-                u8 shadowAlpha = (u8)(100.0f * detailsEnterEase);
-                C2D_ImageTint shadowTint;
-                C2D_PlainImageTint(&shadowTint, GFX_COLOR_RGBA(0, 0, 0, shadowAlpha), 1.0f);
-                GFX_DrawImageAt(otworz_zdalnie_button, drawX + 4.0f, drawY + 4.0f, 0.89f, &shadowTint, 1.0f, 1.0f);
-                C2D_ImageTint btnTint;
-                C2D_AlphaImageTint(&btnTint, detailsEnterEase);
-                GFX_DrawImageAt(otworz_zdalnie_button, drawX, drawY, 0.9f, &btnTint, 1.0f, 1.0f);
+                    u8 shadowAlpha = (u8)(100.0f * detailsEnterEase);
+                    C2D_ImageTint shadowTint;
+                    C2D_PlainImageTint(&shadowTint, GFX_COLOR_RGBA(0, 0, 0, shadowAlpha), 1.0f);
+                    GFX_DrawImageAt(otworz_zdalnie_button, drawX + 4.0f, drawY + 4.0f, 0.89f, &shadowTint, 1.0f, 1.0f);
+                    C2D_ImageTint btnTint;
+                    C2D_AlphaImageTint(&btnTint, detailsEnterEase);
+                    GFX_DrawImageAt(otworz_zdalnie_button, drawX, drawY, 0.9f, &btnTint, 1.0f, 1.0f);
+                }
             }
 
         } else {

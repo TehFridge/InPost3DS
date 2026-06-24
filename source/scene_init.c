@@ -198,7 +198,11 @@ void sceneInitUpdate(uint32_t kDown, uint32_t kHeld) {
         switch (currentState) {
             case STATE_CHECK_DSP:
                 if (access("/3ds/dspfirm.cdc", F_OK) == 0) {
-                    currentState = STATE_CHECK_WIFI;
+                    if (osGetWifiStrength() > 0 || access("/3ds/InPost3DS/paczki.json", F_OK) != 0) {
+                        currentState = STATE_CHECK_WIFI;
+                    } else if (access("/3ds/InPost3DS/paczki.json", F_OK) == 0){
+                        currentState = STATE_DONE;
+                    }
                 } else {
                     currentState = STATE_NO_DSP_FIRM;
                 }
