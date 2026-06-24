@@ -633,16 +633,18 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                  if ((kDown & KEY_TOUCH) && !paczka_list[selectedPaczkaIndex].courier_paczka) {
                     if (touch.px >= (160 - 90) && touch.px <= (160 + 90) &&
                         touch.py >= (200 - 20) && touch.py <= (200 + 20)) {
-                        switch(VOICEACT) {
-                            case 0:
-                                break;
-                            default:
-                                playCwav(27 + (va_offset2 * 26), true);
-                                break;
+                        if (osGetWifiStrength() > 0) {
+                            switch(VOICEACT) {
+                                case 0:
+                                    break;
+                                default:
+                                    playCwav(27 + (va_offset2 * 26), true);
+                                    break;
+                            }
+                            showOpenConfirmation = true;
+                            popupAnimTimer = 0.0f;
+                            playCwav(4, true);
                         }
-                        showOpenConfirmation = true;
-                        popupAnimTimer = 0.0f;
-                        playCwav(4, true);
                     }
                 }
             } else {
