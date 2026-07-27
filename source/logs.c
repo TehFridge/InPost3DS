@@ -14,6 +14,8 @@ u64 get_free_mem() {
 }
 void log_to_file(const char *format, ...) {
     if (!log_file) return;
+    printf(format);
+    printf("\n");
 	if (logplz) {
 		va_list args;
 		va_start(args, format);
