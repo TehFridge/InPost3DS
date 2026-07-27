@@ -69,6 +69,15 @@ bool debug_stats = false;
 
 
 int main(int argc, char* argv[]) {
+    SOC_buffer = (u32*)memalign(SOC_ALIGN, SOC_BUFFERSIZE);
+    if (!SOC_buffer || socInit(SOC_buffer, SOC_BUFFERSIZE)) {
+        printf("SOC init failed\n");
+    }
+
+    if (link3dsConnectToHost(true, true) >= 0) {
+        printf("Connected to 3dslink\n");
+    }
+
     cwavUseEnvironment(CWAV_ENV_DSP);
     romfsInit();
     cfguInit();
@@ -77,10 +86,6 @@ int main(int argc, char* argv[]) {
     init_logger();
     doing_debug_logs = false;
     INPUT_Setup();
-    SOC_buffer = (u32*)memalign(SOC_ALIGN, SOC_BUFFERSIZE);
-    if (!SOC_buffer || socInit(SOC_buffer, SOC_BUFFERSIZE)) {
-        printf("SOC init failed\n");
-    }
 
     totpBuf = GFX_TextBufNew(128);
     g_staticBuf = GFX_TextBufNew(256);
