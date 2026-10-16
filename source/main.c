@@ -11,15 +11,15 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <malloc.h>
-#include "logs.h"
-#include "cwav_shit.h"
-#include "scene_manager.h"
-#include "scene_debug.h"
+#include "utils/logs.h"
+#include "utils/cwav_shit.h"
+#include "scenes/scene_manager.h"
+#include "scenes/scene_debug.h"
 #include "main.h"
-#include "sprites.h"
-#include "request.h"
-#include "drawing.h"
-#include "data.h"
+#include "utils/sprites.h"
+#include "utils/request.h"
+#include "HAL/drawing.h"
+#include "HAL/data.h"
 
 #define FRAME_MS (1000.0f / 60.0f)
 #define MAX_SPRITES   1
@@ -61,7 +61,7 @@ GFX_TEXT g_totpText[5];
 
 u8* captureBuf = NULL;
 ndspWaveBuf captureWaveBuf; 
-const u32 CAPTURE_SIZE = 0x340; 
+const u32 CAPTURE_SIZE = 0x500; 
 
 float slider;
 bool saving_va = false;

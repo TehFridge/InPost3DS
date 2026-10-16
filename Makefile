@@ -33,14 +33,14 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	InPost3DS
 BUILD		:=	build
-SOURCES		:=	source
+SOURCES		:=	source source/HAL source/inpost source/libs source/scenes source/utils
 DATA		:=	data
 INCLUDES	:=	include library/include
 GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 #---------------------------------------------------------------------------------
-APP_VER				:= 1029
+APP_VER				:= 1040
 APP_TITLE			:= InPost3DS
 APP_DESCRIPTION		:= Klient InPostu na Nintendo 3DS
 APP_AUTHOR			:= TehFridge
@@ -64,7 +64,7 @@ ARCH    :=  -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 # Common flags used in both builds
 BaseCFLAGS := -Wall -mword-relocations \
               -ffunction-sections -fdata-sections \
-              $(ARCH)
+              $(ARCH) -DAPP_VER=$(APP_VER)
 
 # Check if DEBUG is set in the environment or command line
 ifdef DEBUG

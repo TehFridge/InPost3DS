@@ -1,0 +1,163 @@
+{
+    "updatedUntil": "2026-08-09T00:01:02.050Z",
+    "more": false,
+    "parcels": [
+        {
+            "shipmentNumber": "432434234234234234",
+            "status": "TAKEN_BY_COURIER",
+            "statusGroup": "IN_TRANSIT",
+            "eventLog": [
+                {
+                    "type": "PARCEL_STATUS",
+                    "name": "TAKEN_BY_COURIER",
+                    "date": "2026-08-08T10:16:48.294Z"
+                },
+                {
+                    "type": "PARCEL_STATUS",
+                    "name": "DISPATCHED_BY_SENDER",
+                    "date": "2026-08-07T19:35:50.406Z"
+                },
+                {
+                    "type": "PARCEL_STATUS",
+                    "name": "CONFIRMED",
+                    "date": "2026-08-07T14:34:02.447Z"
+                },
+                {
+                    "type": "PARCEL_STATUS",
+                    "name": "CREATED",
+                    "date": "2026-08-07T14:34:02.000Z"
+                },
+                {
+                    "type": "PAYMENT",
+                    "name": "C2X_COMPLETED",
+                    "date": "2026-08-07T14:34:01.301Z",
+                    "details": {
+                        "invoiceRequested": false
+                    }
+                }
+            ],
+            "shipmentType": "parcel",
+            "originSystem": "SendAPI",
+            "quickSendCode": "434343434",
+            "qrCode": "434343434",
+            "confirmationDate": "2026-08-07T14:34:02.447Z",
+            "expiryDate": "2026-09-06T14:34:02.000Z",
+            "dropOffPoint": {
+                "name": "REICHI",
+                "location": {
+                    "latitude": 51.09265,
+                    "longitude": 17.03131
+                },
+                "locationDescription": "w dupie",
+                "openingHours": "24/7",
+                "addressDetails": {
+                    "postCode": "xx-xxx",
+                    "city": "wypizdowie",
+                    "province": "dolne",
+                    "street": "dupna 3",
+                    "buildingNumber": "2",
+                    "country": "PL"
+                },
+                "virtual": 0,
+                "pointType": "PL",
+                "type": [
+                    "parcel_locker"
+                ],
+                "location247": true,
+                "doubled": false,
+                "imageUrl": "https://static.easypack24.net/points/pl/images/WRO05N.jpg",
+                "easyAccessZone": true,
+                "airSensor": false,
+                "country": "PL"
+            },
+            "pickUpPoint": {
+                "name": "REICHI",
+                "location": {
+                    "latitude": 54.24324,
+                    "longitude": 20.80571
+                },
+                "locationDescription": "przy reichi",
+                "openingHours": "24/7",
+                "addressDetails": {
+                    "postCode": "xx-xxx",
+                    "city": "Reiszyce",
+                    "province": "rei",
+                    "street": "reichna",
+                    "buildingNumber": "6",
+                    "country": "PL"
+                },
+                "virtual": 0,
+                "pointType": "PL",
+                "type": [
+                    "parcel_locker"
+                ],
+                "location247": true,
+                "doubled": false,
+                "imageUrl": "https://static.easypack24.net/points/pl/images/DUPA.jpg",
+                "easyAccessZone": true,
+                "airSensor": false,
+                "country": "PL"
+            },
+            "payment": {
+                "paid": true
+            },
+            "unlabeled": true,
+            "endOfWeekCollection": false,
+            "operations": {
+                "manualArchive": true,
+                "delete": true,
+                "payToSend": false,
+                "highlight": false,
+                "refreshUntil": "2026-09-21T14:33:20.000Z",
+                "voicebot": true,
+                "send": false,
+                "refund": "DISALLOWED",
+                "fetchQrCode": false,
+                "fetchLabelPdf": false
+            },
+            "parcelSize": "A",
+            "receiver": {
+                "phoneNumber": {
+                    "prefix": "+48",
+                    "value": "786194402"
+                },
+                "email": "aleksanderpleskot@gmail.com",
+                "name": "Aleksander Pleskot"
+            },
+            "sender": {
+                "phoneNumber": {
+                    "prefix": "+48",
+                    "value": "xxxxxxxxxx"
+                },
+                "email": "x@wp.pl",
+                "name": "x"
+            },
+            "orderId": "x",
+            "events": [
+                {
+                    "date": "2026-08-08T10:16:48.294Z",
+                    "eventTitle": "Odebrana przez Kuriera",
+                    "eventDescription": "Dobra wiadomość! Przesyłka została odebrana przez Kuriera i jest w drodze do oddziału InPost, skąd wyruszy w dalszą drogę.",
+                    "eventCode": "FMD.1002"
+                },
+                {
+                    "date": "2026-08-07T19:35:50.406Z",
+                    "eventTitle": "Nadana przez Paczkomat/PaczkoPunkt",
+                    "eventDescription": "Paczka została nadana przez Nadawcę i już wkrótce do Ciebie trafi.",
+                    "eventCode": "FMD.1001"
+                },
+                {
+                    "date": "2026-08-07T14:34:02.447Z",
+                    "eventTitle": "Przesyłka utworzona",
+                    "eventDescription": "Przesyłka została utworzona, ale nie jest gotowa do nadania.",
+                    "eventCode": "CRE.1001"
+                }
+            ],
+            "ownershipStatus": "OWN",
+            "insuranceAmount": "5000.00",
+            "sourceCountryCode": "PL",
+            "destinationCountryCode": "PL",
+            "internationalParcel": false
+        }
+    ]
+}
