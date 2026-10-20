@@ -26,7 +26,6 @@
 int VOICEACT = 0;
 bool VA_YES = false;
 
-
 #define MAKE_IPV4(a,b,c,d) ((a) << 24 | (b) << 16 | (c) << 8 | (d))
 #define NTP_IP MAKE_IPV4(51, 137, 137, 111) 
 
@@ -64,7 +63,6 @@ static const float ANIM_SPEED = 0.05f;
 static bool testRequestSent = false;
 static bool ntpAttempted = false; 
 
-
 static int ntpSock = -1;
 static u64 ntpStartTick = 0;
 static u64 ntpTimeoutStart = 0;
@@ -84,10 +82,8 @@ static float easeInBack(float x) {
 
 static void onSelectionFinished(void) { }
 
-
 #define NTP_TO_Y2K_SECONDS 3155673600ULL
 
-// implemntation based on the one in luma3ds
 static Result setSystemTime(u64 msSince1900) {
     Result res = 0;
     u64 msFrom1900to2000 = NTP_TO_Y2K_SECONDS * 1000ULL;
@@ -95,20 +91,16 @@ static Result setSystemTime(u64 msSince1900) {
     if (msSince1900 < msFrom1900to2000) return -1; 
     s64 msY2k = (s64)(msSince1900 - msFrom1900to2000);
 
-    
     if (R_FAILED(res = ptmSysmInit())) return res;
     if (R_FAILED(res = ptmSetsInit())) { ptmSysmExit(); return res; }
     if (R_FAILED(res = cfguInit())) { ptmSetsExit(); ptmSysmExit(); return res; }
 
-    
     res = PTMSYSM_SetRtcTime(msY2k);
-    
     
     if (R_SUCCEEDED(res)) {
         res = PTMSYSM_SetUserTime(msY2k);
     }
 
-    
     if (R_SUCCEEDED(res)) {
         res = PTMSETS_SetSystemTime(msY2k);
     }
@@ -122,10 +114,10 @@ static Result setSystemTime(u64 msSince1900) {
 static void drawRoundedBoxGradient(float x, float y, float z, float w, float h, u32 cTop, u32 cBot, float r) {
     if (r * 2 > w) r = w / 2;
     if (r * 2 > h) r = h / 2;
-    GFX_DrawCircleSolid(x + r, y + r, z, r, cTop);                 
-    GFX_DrawCircleSolid(x + w - r, y + r, z, r, cTop);             
-    GFX_DrawCircleSolid(x + r, y + h - r, z, r, cBot);             
-    GFX_DrawCircleSolid(x + w - r, y + h - r, z, r, cBot);         
+    GFX_DrawCircleSolid(x + r, y + r, z, r, cTop);                
+    GFX_DrawCircleSolid(x + w - r, y + r, z, r, cTop);            
+    GFX_DrawCircleSolid(x + r, y + h - r, z, r, cBot);            
+    GFX_DrawCircleSolid(x + w - r, y + h - r, z, r, cBot);        
     GFX_DrawRectangle(x, y + r, z, r, h - 2 * r, cTop, cTop, cBot, cBot);
     GFX_DrawRectangle(x + w - r, y + r, z, r, h - 2 * r, cTop, cTop, cBot, cBot);
     GFX_DrawRectangle(x + r, y, z, w - 2 * r, h, cTop, cTop, cBot, cBot);
@@ -311,23 +303,18 @@ void sceneInitUpdate(uint32_t kDown, uint32_t kHeld) {
                 }
                 break;
 
-            
             case STATE_ATTEMPT_NTP:
                 ntpAttempted = true; 
                 
-                
                 ntpSock = socket(AF_INET, SOCK_DGRAM, 0);
                 
-                
                 if (ntpSock < 0) {
-                    
                     
                     currentState = STATE_CHECK_WIFI; 
                     ntpAttempted = false; 
                     break;
                 }
                 
-
                 struct sockaddr_in servAddr = {0};
                 servAddr.sin_family = AF_INET;
                 servAddr.sin_addr.s_addr = htonl(NTP_IP);
@@ -387,7 +374,6 @@ void sceneInitUpdate(uint32_t kDown, uint32_t kHeld) {
                     }
                 }
                 break;
-            
 
             case STATE_CERT_ERROR:
                 if (kDown & KEY_START) {
@@ -447,7 +433,6 @@ void sceneInitRender(void) {
     float screenH = 240.0f;
     GFX_BeginSceneTop(0, true);
     
-    
     if (currentState == STATE_NO_WIFI) {
         float textW = 0, textH = 0;
         GFX_TextGetDimensions(&txtNoWifi, 0.5f, 0.5f, &textW, &textH);
@@ -469,7 +454,6 @@ void sceneInitRender(void) {
         return;
     }
 
-    
     if (currentState == STATE_ATTEMPT_NTP || currentState == STATE_WAIT_NTP) {
         float textW = 0, textH = 0;
         GFX_TextGetDimensions(&txtNtpFixing, 0.5f, 0.5f, &textW, &textH);
