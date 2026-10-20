@@ -145,27 +145,87 @@ static void drawRoundedBoxSolid(float x, float y, float z, float w, float h, u32
 
 int random_val; 
 
+static bool promptForLanguage(void) {
+    static SwkbdState swkbd;
+    static char langBuf[8] = "";
+    SwkbdButton button;
+
+    do {
+        swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, 2);
+        swkbdSetHintText(&swkbd, "Select language (PL or EN):");
+        swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
+
+        button = swkbdInputText(&swkbd, langBuf, sizeof(langBuf));
+
+        if (button == SWKBD_BUTTON_NONE)
+            return false; 
+
+    } while (strcmp(langBuf, "PL") != 0 && strcmp(langBuf, "EN") != 0);
+
+    currentLang = (strcmp(langBuf, "PL") == 0) ? PL : EN;
+    return true;
+}
+
 void sceneInitInit(void) {
-    currentLang = EN;
-    loadLanguage(currentLang);
-    VA_YES = true;
     currentState = STATE_CHECK_DSP;
     animTimer = 0.0f;
     animFactor = 0.0f;
     testRequestSent = false;
     ntpAttempted = false; 
     srand(time(NULL));
-
     random_val = rand() % 500;  
+
+    bool langLoadedFromConfig = false;
+    VA_YES = true;
+
+    if (access("/3ds/InPost3DS/opcje.json", F_OK) == 0) {
+        cJSON *jsonfl = NULL;
+        open_json("/3ds/InPost3DS/opcje.json", &jsonfl);
+        
+        cJSON *czyjest = cJSON_GetObjectItem(jsonfl, "VA");
+        if (czyjest) {
+            VOICEACT = (int)cJSON_GetNumberValue(czyjest);
+            if (VOICEACT < 0) VOICEACT = 0;
+            if (VOICEACT > 3) VOICEACT = 3;
+        }
+
+        cJSON *language = cJSON_GetObjectItem(jsonfl, "language");
+        if (language) {
+            const char* langValue = cJSON_GetStringValue(language);
+            if (langValue && strcmp(langValue, "PL") == 0) {
+                currentLang = PL;
+            } else {
+                currentLang = EN;
+            }
+            langLoadedFromConfig = true;
+        }
+
+        cJSON_Delete(jsonfl);
+    }
+
+    if (!langLoadedFromConfig) {
+        if (!promptForLanguage()) {
+            currentLang = EN; 
+        }
+
+        cJSON *oproot = cJSON_CreateObject();
+        cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(1));
+        cJSON_AddItemToObject(oproot, "language", cJSON_CreateString(currentLang == PL ? "PL" : "EN"));
+        save_json("/3ds/InPost3DS/opcje.json", oproot);
+        cJSON_Delete(oproot);
+        
+        VA_YES = false;
+    }
+
+    loadLanguage(currentLang);
+
     staticTextBuf = GFX_TextBufNew(4096);
 
     GFX_TextParse(&txtNoWifi, staticTextBuf, lang_strings[0]);
     GFX_TextParse(&txtCertError, staticTextBuf, lang_strings[1]);
     GFX_TextParse(&txtNtpFixing, staticTextBuf, lang_strings[2]);
     GFX_TextParse(&txtNoDspFirm, staticTextBuf, lang_strings[3]);
-
     GFX_TextParse(&txtTitle, staticTextBuf, lang_strings[4]);
-    
     GFX_TextParse(&txtOptA, staticTextBuf, lang_strings[5]);
     GFX_TextParse(&txtOptX, staticTextBuf, lang_strings[6]);
     GFX_TextParse(&txtOptY, staticTextBuf, lang_strings[7]);
@@ -174,92 +234,12 @@ void sceneInitInit(void) {
     GFX_TextOptimize(&txtNoWifi);
     GFX_TextOptimize(&txtCertError);
     GFX_TextOptimize(&txtNtpFixing);
+    GFX_TextOptimize(&txtNoDspFirm); 
     GFX_TextOptimize(&txtTitle);
     GFX_TextOptimize(&txtOptA);
     GFX_TextOptimize(&txtOptX);
     GFX_TextOptimize(&txtOptY);
     GFX_TextOptimize(&txtOptB);
-    
-    if (access("/3ds/InPost3DS/opcje.json", F_OK) == 0) {
-        cJSON *jsonfl = NULL;
-        open_json("/3ds/InPost3DS/opcje.json", &jsonfl);
-        cJSON *czyjest = cJSON_GetObjectItem(jsonfl, "VA");
-
-        VOICEACT = (int)cJSON_GetNumberValue(czyjest);
-        
-        if (VOICEACT < 0) VOICEACT = 0;
-        if (VOICEACT > 3) VOICEACT = 3;
-        cJSON *language = cJSON_GetObjectItem(jsonfl, "language");
-        if (!language) {
-            static SwkbdState swkbd;
-            static char langBuf[8] = "";
-            SwkbdButton button;
-
-            do {
-                swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, 2);
-                swkbdSetHintText(&swkbd, "Select language (PL or EN):");
-                swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
-
-                button = swkbdInputText(&swkbd, langBuf, sizeof(langBuf));
-
-                if (button == SWKBD_BUTTON_NONE)
-                    break; 
-
-            } while (strcmp(langBuf, "PL") != 0 &&
-                    strcmp(langBuf, "EN") != 0);
-
-            if (button != SWKBD_BUTTON_NONE) {
-                if (strcmp(langBuf, "PL") == 0) {
-                    currentLang = PL;
-                    loadLanguage(currentLang);
-                } else {
-                    currentLang = EN;
-                    loadLanguage(currentLang);
-                }
-            }
-        } else {
-            const char* langValue = cJSON_GetStringValue(language);
-            if (langValue && strcmp(langValue, "PL") == 0) {
-                currentLang = PL;
-            } else {
-                currentLang = EN;
-            }
-        }
-
-        cJSON_Delete(jsonfl);
-    } else {
-        static SwkbdState swkbd;
-        static char langBuf[8] = "";
-        SwkbdButton button;
-
-        do {
-            swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, 2);
-            swkbdSetHintText(&swkbd, "Select language (PL or EN):");
-            swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
-
-            button = swkbdInputText(&swkbd, langBuf, sizeof(langBuf));
-
-            if (button == SWKBD_BUTTON_NONE)
-                break; 
-
-        } while (strcmp(langBuf, "PL") != 0 &&
-                strcmp(langBuf, "EN") != 0);
-
-        if (button != SWKBD_BUTTON_NONE) {
-            if (strcmp(langBuf, "PL") == 0) {
-                currentLang = PL;
-                loadLanguage(currentLang);
-            } else {
-                currentLang = EN;
-                loadLanguage(currentLang);
-            }
-        }
-        cJSON *oproot = cJSON_CreateObject();
-        cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
-        cJSON_AddItemToObject(oproot, "language", cJSON_CreateString(currentLang == PL ? "PL" : "EN"));
-        save_json("/3ds/InPost3DS/opcje.json", oproot);
-        VA_YES = false;
-    }
 }
 
 void sceneInitUpdate(uint32_t kDown, uint32_t kHeld) {
