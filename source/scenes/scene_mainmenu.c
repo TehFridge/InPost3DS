@@ -20,6 +20,7 @@
 #include "../libs/cJSON.h"
 #include "../libs/quirc.h"
 #include "../utils/utils.h"
+#include "../utils/lang.h"
 #define MAX_STARS 64
 
 bool musicisplaying = false;
@@ -303,9 +304,9 @@ void sceneMainMenuInit(void) {
 	MainMenu = GFX_TextBufNew(2048);
     DebugMainText = GFX_TextBufNew(2048);
     GFX_TextBufClear(MainMenu);  
-	GFX_TextParse(&menu_Text[0], MainMenu, "Wciśnij A");
-	GFX_TextParse(&menu_Text[1], MainMenu, "Zeskanuj kod QR");
-    GFX_TextParse(&menu_Text[3], MainMenu, "STRONA DO LOGOWANIA");
+	GFX_TextParse(&menu_Text[0], MainMenu, lang_strings[9]);
+	GFX_TextParse(&menu_Text[1], MainMenu, lang_strings[10]);
+    GFX_TextParse(&menu_Text[3], MainMenu, lang_strings[11]);
     GFX_TextParse(&menu_Text[4], MainMenu, "https://tehfridge.github.io/inpost-helper/");
     GFX_TextOptimize(&menu_Text[0]);
     GFX_TextOptimize(&menu_Text[1]);
@@ -690,8 +691,8 @@ void sceneMainMenuRender(void) {
         GFX_TEXTBUF popupBuf = GFX_TextBufNew(512);
         GFX_TEXT qText, optText;
 
-        GFX_TextParse(&qText, popupBuf, "Czy pierwszy raz korzystasz z Inpost3DS?");
-        GFX_TextParse(&optText, popupBuf, "(A) Tak    (B) Nie");
+        GFX_TextParse(&qText, popupBuf, lang_strings[12]);
+        GFX_TextParse(&optText, popupBuf, lang_strings[13]);
         
         GFX_TextOptimize(&qText);
         GFX_TextOptimize(&optText);

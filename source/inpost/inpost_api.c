@@ -15,6 +15,7 @@
 #include "../utils/request.h"
 #include "../libs/cJSON.h"
 #include "../utils/utils.h"
+#include "../utils/lang.h"
 ResponseBuffer send_phone_numer = {NULL, 0, 0, false};
 ResponseBuffer send_kod_sms = {NULL, 0, 0, false};
 ResponseBuffer paczkas = {NULL, 0, 0, false};
@@ -222,7 +223,17 @@ void getPaczkas() {
     }
     snprintf(authheader, auth_len, "Authorization: Bearer %s", authToken);
     headers = curl_slist_append(headers, "x-app-id: pl.inpost.inmobile");
-    headers = curl_slist_append(headers, "Accept-Language: pl-PL");
+    switch(currentLang) {
+        case PL:
+            headers = curl_slist_append(headers, "Accept-Language: pl-PL");
+            break;
+        case EN:
+            headers = curl_slist_append(headers, "Accept-Language: en-US");
+            break;
+        default:
+            headers = curl_slist_append(headers, "Accept-Language: pl-PL");
+            break;
+    }
 
     char device_uid[37];
     generate_uuidv4(device_uid);

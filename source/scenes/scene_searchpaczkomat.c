@@ -10,6 +10,7 @@
 #include "../utils/anim.h"
 #include "../inpost/inpost_api.h"
 #include "../utils/utils.h"
+#include "../utils/lang.h"
 
 static u64 lastTick = 0;
 static float dt = 0.0f;
@@ -56,7 +57,7 @@ void sceneSearchpaczkomatInit(void) {
     
     searchBuf = GFX_TextBufNew(4096);
 
-    GFX_TextParse(&S_text, searchBuf, "Wprowadź paczkomat odbiorcy.");
+    GFX_TextParse(&S_text, searchBuf, lang_strings[30]);
     GFX_TextOptimize(&S_text);
 
 }
@@ -130,7 +131,7 @@ void sceneSearchpaczkomatUpdate(uint32_t kDown, uint32_t kHeld) {
         SwkbdButton button = SWKBD_BUTTON_NONE;
         
         swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 1, 59);
-        swkbdSetHintText(&swkbd, "Wyszukaj paczkomat odbiorcy (np. WAW01M):");
+        swkbdSetHintText(&swkbd, lang_strings[69]);
         swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY, 0, 0);
 
         button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));

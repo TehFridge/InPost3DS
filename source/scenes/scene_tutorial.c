@@ -13,6 +13,7 @@
 #include "../utils/cwav_shit.h" 
 #include "scene_init.h"
 #include "../HAL/drawing.h"
+#include "../utils/lang.h"
 static u64 lastTick = 0;
 static float dt = 0.0f;
 
@@ -89,50 +90,50 @@ void sceneTutorialInit(void) {
         currentDisplayedCharId = tutorialScript_arhn[currentStep].speakingImageId;
     }
     
-    tutorialScript_arhn[0] = (TutorialStep){ "Siemka! Witaj w Inpost 3DS.", 0, 0, 3.0f, NULL, NULL };
-    tutorialScript_arhn[1] = (TutorialStep){ "W tym krótkim samouczku pokazę ci\njak korzystać z aplikacji...", 1, 1, 3.5f, NULL, NULL };
-    tutorialScript_arhn[2] = (TutorialStep){ "zaczynając od menu głównego.", 1, 1, 2.0f, tut0_0, tut0_bot0 };
-    tutorialScript_arhn[3] = (TutorialStep){ "Na górnym ekranie możesz spostrzec znaczek\nz danymi twojej przesyłki.", 1, 1, 3.0f, tut0_0, tut0_bot0 };
-    tutorialScript_arhn[4] = (TutorialStep){ "Zawiera on rzeczy takie jak...", 1, 1, 2.0f, tut0_0, tut0_bot0 };
-    tutorialScript_arhn[5] = (TutorialStep){ "Data ostatnio aktualizowanego statusu\nprzesyłki", 1, 1, 3.0f, tut0_1, tut0_bot0 };
-    tutorialScript_arhn[6] = (TutorialStep){ "Nazwa paczkomatu bądź nadawcy", 1, 1, 2.5f, tut0_2, tut0_bot0 };
-    tutorialScript_arhn[7] = (TutorialStep){ "Oraz przybliżony adres docelowy przesyłki", 1, 1, 3.0f, tut0_3, tut0_bot0 };
-    tutorialScript_arhn[8] = (TutorialStep){ "Używając D-Pada możesz poruszać się pomiędzy\npaczkami pokazanymi na dolnym ekranie", 1, 1, 4.0f, tut0_0, tut0_bot1 };
-    tutorialScript_arhn[9] = (TutorialStep){ "Po wciśnięciu (A) na którąkolwiek paczkę.\nPrzeniesiesz sie do menu z jej detalami.", 1, 1, 4.0f, tut1_0, tut1_bot0 };
-    tutorialScript_arhn[10] = (TutorialStep){ "Na górnym ekranie zobaczysz podgląd\nobecnego paczkomatu.", 1, 1, 3.0f, tut1_0, tut1_bot0 };
-    tutorialScript_arhn[11] = (TutorialStep){ "A na dolnym ekranie, menu z detalami\nśledzenia oraz przyciskiem (QR)", 1, 1, 4.0f, tut1_0, tut1_bot1 };
-    tutorialScript_arhn[12] = (TutorialStep){ "Po dotknięciu go przeniesiesz się do menu\nodbioru paczki.", 1, 1, 3.0f, NULL, tut2_0 };
-    tutorialScript_arhn[13] = (TutorialStep){ "Na dolnym ekranie będzie wyświetlał sie kod QR do\nodbioru przy użyciu skanerów dostępnych\nw paczkomatach", 1, 1, 5.0f, NULL, tut2_0 };
-    tutorialScript_arhn[14] = (TutorialStep){ "Które... nie lubią działać z \"ekranem konsolki\"", 2, 2, 3.0f, NULL, tut2_0 };
-    tutorialScript_arhn[15] = (TutorialStep){ "Jak i przycisk do otworzenia skrytki zdalnie!", 1, 1, 3.0f, NULL, tut2_0 };
-    tutorialScript_arhn[16] = (TutorialStep){ "Po dotknięciu go ukaże sie pop-up potwierdzający\nże na pewno chcesz otworzyć skrytke", 1, 1, 4.0f, NULL, tut3_0 };
-    tutorialScript_arhn[17] = (TutorialStep){ "Jest tylko dlatego, by przypadkiem nie otworzyć\npaczkomatu.", 1, 1, 3.5f, NULL, tut3_0 };
-    tutorialScript_arhn[18] = (TutorialStep){ "InPost3DS nie wykrywa lokalizacji więc\npolecam uważać.", 1, 1, 3.0f, NULL, tut3_0 };
-    tutorialScript_arhn[19] = (TutorialStep){ "To by było wszystko w samouczku.", 1, 1, 2.0f, NULL, NULL };
-    tutorialScript_arhn[20] = (TutorialStep){ "Dziękuje za skorzystanie z InPost3DS!\nMam nadzieje że będziesz sie bawić dobrze. :)", 0, 0, 4.0f, NULL, NULL };
+    tutorialScript_arhn[0] = (TutorialStep){ lang_strings[48], 0, 0, 3.0f, NULL, NULL };
+    tutorialScript_arhn[1] = (TutorialStep){ lang_strings[49], 1, 1, 3.5f, NULL, NULL };
+    tutorialScript_arhn[2] = (TutorialStep){ lang_strings[50], 1, 1, 2.0f, tut0_0, tut0_bot0 };
+    tutorialScript_arhn[3] = (TutorialStep){ lang_strings[51], 1, 1, 3.0f, tut0_0, tut0_bot0 };
+    tutorialScript_arhn[4] = (TutorialStep){ lang_strings[52], 1, 1, 2.0f, tut0_0, tut0_bot0 };
+    tutorialScript_arhn[5] = (TutorialStep){ lang_strings[53], 1, 1, 3.0f, tut0_1, tut0_bot0 };
+    tutorialScript_arhn[6] = (TutorialStep){ lang_strings[54], 1, 1, 2.5f, tut0_2, tut0_bot0 };
+    tutorialScript_arhn[7] = (TutorialStep){ lang_strings[55], 1, 1, 3.0f, tut0_3, tut0_bot0 };
+    tutorialScript_arhn[8] = (TutorialStep){ lang_strings[56], 1, 1, 4.0f, tut0_0, tut0_bot1 };
+    tutorialScript_arhn[9] = (TutorialStep){ lang_strings[57], 1, 1, 4.0f, tut1_0, tut1_bot0 };
+    tutorialScript_arhn[10] = (TutorialStep){ lang_strings[58], 1, 1, 3.0f, tut1_0, tut1_bot0 };
+    tutorialScript_arhn[11] = (TutorialStep){ lang_strings[59], 1, 1, 4.0f, tut1_0, tut1_bot1 };
+    tutorialScript_arhn[12] = (TutorialStep){ lang_strings[60], 1, 1, 3.0f, NULL, tut2_0 };
+    tutorialScript_arhn[13] = (TutorialStep){ lang_strings[61], 1, 1, 5.0f, NULL, tut2_0 };
+    tutorialScript_arhn[14] = (TutorialStep){ lang_strings[62], 2, 2, 3.0f, NULL, tut2_0 };
+    tutorialScript_arhn[15] = (TutorialStep){ lang_strings[63], 1, 1, 3.0f, NULL, tut2_0 };
+    tutorialScript_arhn[16] = (TutorialStep){ lang_strings[64], 1, 1, 4.0f, NULL, tut3_0 };
+    tutorialScript_arhn[17] = (TutorialStep){ lang_strings[65], 1, 1, 3.5f, NULL, tut3_0 };
+    tutorialScript_arhn[18] = (TutorialStep){ lang_strings[66], 1, 1, 3.0f, NULL, tut3_0 };
+    tutorialScript_arhn[19] = (TutorialStep){ lang_strings[67], 1, 1, 2.0f, NULL, NULL };
+    tutorialScript_arhn[20] = (TutorialStep){ lang_strings[71], 0, 0, 4.0f, NULL, NULL };
 
-    tutorialScript[0] = (TutorialStep){ "Siemka! Witaj w Inpost 3DS.", 0, 2, 3.0f, NULL, NULL };
-    tutorialScript[1] = (TutorialStep){ "W tym krótkim samouczku pokazę ci\njak korzystać z aplikacji...", 1, 2, 3.5f, NULL, NULL };
-    tutorialScript[2] = (TutorialStep){ "zaczynając od menu głównego.", 1, 2, 2.0f, tut0_0, tut0_bot0 };
-    tutorialScript[3] = (TutorialStep){ "Na górnym ekranie możesz spostrzec znaczek\nz danymi twojej przesyłki.", 1, 2, 3.0f, tut0_0, tut0_bot0 };
-    tutorialScript[4] = (TutorialStep){ "Zawiera on rzeczy takie jak...", 1, 2, 2.0f, tut0_0, tut0_bot0 };
-    tutorialScript[5] = (TutorialStep){ "Data ostatnio aktualizowanego statusu\nprzesyłki", 1, 2, 3.0f, tut0_1, tut0_bot0 };
-    tutorialScript[6] = (TutorialStep){ "Nazwa paczkomatu bądź nadawcy", 1, 2, 2.5f, tut0_2, tut0_bot0 };
-    tutorialScript[7] = (TutorialStep){ "Oraz przybliżony adres docelowy przesyłki", 1, 2, 3.0f, tut0_3, tut0_bot0 };
-    tutorialScript[8] = (TutorialStep){ "Używając D-Pada możesz poruszać się pomiędzy\npaczkami pokazanymi na dolnym ekranie", 1, 2, 4.0f, tut0_0, tut0_bot1 };
-    tutorialScript[9] = (TutorialStep){ "Po wciśnięciu (A) na którąkolwiek paczkę.\nPrzeniesiesz sie do menu z jej detalami.", 1, 2, 4.0f, tut1_0, tut1_bot0 };
-    tutorialScript[10] = (TutorialStep){ "Na górnym ekranie zobaczysz podgląd\nobecnego paczkomatu.", 1, 2, 3.0f, tut1_0, tut1_bot0 };
-    tutorialScript[11] = (TutorialStep){ "A na dolnym ekranie, menu z detalami\nśledzenia oraz przyciskiem (QR)", 1, 2, 4.0f, tut1_0, tut1_bot1 };
-    tutorialScript[12] = (TutorialStep){ "Po dotknięciu go przeniesiesz się do menu\nodbioru paczki.", 1, 2, 3.0f, NULL, tut2_0 };
-    tutorialScript[13] = (TutorialStep){ "Na dolnym ekranie będzie wyświetlał sie kod QR do\nodbioru przy użyciu skanerów dostępnych\nw paczkomatach", 1, 2, 5.0f, NULL, tut2_0 };
-    tutorialScript[14] = (TutorialStep){ "Które... nie lubią działać z \"ekranem konsolki\"", 3, 4, 3.0f, NULL, tut2_0 };
-    tutorialScript[15] = (TutorialStep){ "Jak i przycisk do otworzenia skrytki zdalnie!", 0, 2, 3.0f, NULL, tut2_0 };
-    tutorialScript[16] = (TutorialStep){ "Po dotknięciu go ukaże sie pop-up potwierdzający\nże na pewno chcesz otworzyć skrytke", 1, 2, 4.0f, NULL, tut3_0 };
-    tutorialScript[17] = (TutorialStep){ "Jest tylko dlatego, by przypadkiem nie otworzyć\npaczkomatu.", 1, 2, 3.5f, NULL, tut3_0 };
-    tutorialScript[18] = (TutorialStep){ "InPost3DS nie wykrywa lokalizacji więc\npolecam uważać.", 1, 2, 3.0f, NULL, tut3_0 };
-    tutorialScript[19] = (TutorialStep){ "To by było wszystko w samouczku.", 1, 2, 2.0f, NULL, NULL };
-    tutorialScript[20] = (TutorialStep){ "Dziękuje za skorzystanie z InPost3DS!\nMam nadzieje że będziesz sie bawić dobrze. :)", 0, 2, 4.0f, NULL, NULL };
-    
+    tutorialScript[0] = (TutorialStep){ lang_strings[48], 0, 2, 3.0f, NULL, NULL };
+    tutorialScript[1] = (TutorialStep){ lang_strings[49], 1, 2, 3.5f, NULL, NULL };
+    tutorialScript[2] = (TutorialStep){ lang_strings[50], 1, 2, 2.0f, tut0_0, tut0_bot0 };
+    tutorialScript[3] = (TutorialStep){ lang_strings[51], 1, 2, 3.0f, tut0_0, tut0_bot0 };
+    tutorialScript[4] = (TutorialStep){ lang_strings[52], 1, 2, 2.0f, tut0_0, tut0_bot0 };
+    tutorialScript[5] = (TutorialStep){ lang_strings[53], 1, 2, 3.0f, tut0_1, tut0_bot0 };
+    tutorialScript[6] = (TutorialStep){ lang_strings[54], 1, 2, 2.5f, tut0_2, tut0_bot0 };
+    tutorialScript[7] = (TutorialStep){ lang_strings[55], 1, 2, 3.0f, tut0_3, tut0_bot0 };
+    tutorialScript[8] = (TutorialStep){ lang_strings[56], 1, 2, 4.0f, tut0_0, tut0_bot1 };
+    tutorialScript[9] = (TutorialStep){ lang_strings[57], 1, 2, 4.0f, tut1_0, tut1_bot0 };
+    tutorialScript[10] = (TutorialStep){ lang_strings[58], 1, 2, 3.0f, tut1_0, tut1_bot0 };
+    tutorialScript[11] = (TutorialStep){ lang_strings[59], 1, 2, 4.0f, tut1_0, tut1_bot1 };
+    tutorialScript[12] = (TutorialStep){ lang_strings[60], 1, 2, 3.0f, NULL, tut2_0 };
+    tutorialScript[13] = (TutorialStep){ lang_strings[61], 1, 2, 5.0f, NULL, tut2_0 };
+    tutorialScript[14] = (TutorialStep){ lang_strings[62], 3, 4, 3.0f, NULL, tut2_0 };
+    tutorialScript[15] = (TutorialStep){ lang_strings[63], 0, 2, 3.0f, NULL, tut2_0 };
+    tutorialScript[16] = (TutorialStep){ lang_strings[64], 1, 2, 4.0f, NULL, tut3_0 };
+    tutorialScript[17] = (TutorialStep){ lang_strings[65], 1, 2, 3.5f, NULL, tut3_0 };
+    tutorialScript[18] = (TutorialStep){ lang_strings[66], 1, 2, 3.0f, NULL, tut3_0 };
+    tutorialScript[19] = (TutorialStep){ lang_strings[67], 1, 2, 2.0f, NULL, NULL };
+    tutorialScript[20] = (TutorialStep){ lang_strings[71], 0, 2, 4.0f, NULL, NULL };
+
     flashTimer = 0.0f;
     
     musicisplaying = true;
@@ -157,7 +158,7 @@ void sceneTutorialInit(void) {
 
 
     promptBuf = GFX_TextBufNew(256);
-    GFX_TextParse(&promptText, promptBuf, "Naciśnij (A), aby kontynuować");
+    GFX_TextParse(&promptText, promptBuf, lang_strings[20]);
     GFX_TextOptimize(&promptText);
 
     switch(VOICEACT) {

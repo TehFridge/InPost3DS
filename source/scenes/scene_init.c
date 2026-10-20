@@ -21,6 +21,7 @@
 #include "../utils/sprites.h"
 #include "../inpost/inpost_api.h" 
 #include "../utils/utils.h"
+#include "../utils/lang.h"
 
 int VOICEACT = 0;
 bool VA_YES = false;
@@ -145,6 +146,8 @@ static void drawRoundedBoxSolid(float x, float y, float z, float w, float h, u32
 int random_val; 
 
 void sceneInitInit(void) {
+    currentLang = EN;
+    loadLanguage(currentLang);
     VA_YES = true;
     currentState = STATE_CHECK_DSP;
     animTimer = 0.0f;
@@ -156,17 +159,17 @@ void sceneInitInit(void) {
     random_val = rand() % 500;  
     staticTextBuf = GFX_TextBufNew(4096);
 
-    GFX_TextParse(&txtNoWifi, staticTextBuf, "Brak Internetu, podłącz aplikacje do internetu");
-    GFX_TextParse(&txtCertError, staticTextBuf, "CERT ERROR!\nCzas w 3DS'ie jest niepoprawny, zmień go na aktualny\nWciśnij (START) by wyjść.");
-    GFX_TextParse(&txtNtpFixing, staticTextBuf, "Błąd SSL. Próba naprawy czasu (NTP)...");
-    GFX_TextParse(&txtNoDspFirm, staticTextBuf, "Brak oprogramowania DSP.\nW Rosalina Menu (L + D-Pad dół + Select)\nwybierz \"Miscellaneous options\",\na następnie \"Dump DSP firmware\"\nWciśnij (START) by wyjść.");
+    GFX_TextParse(&txtNoWifi, staticTextBuf, lang_strings[0]);
+    GFX_TextParse(&txtCertError, staticTextBuf, lang_strings[1]);
+    GFX_TextParse(&txtNtpFixing, staticTextBuf, lang_strings[2]);
+    GFX_TextParse(&txtNoDspFirm, staticTextBuf, lang_strings[3]);
+
+    GFX_TextParse(&txtTitle, staticTextBuf, lang_strings[4]);
     
-    GFX_TextParse(&txtTitle, staticTextBuf, "Wybierz głos nawigatora głosowego");
-    
-    GFX_TextParse(&txtOptA, staticTextBuf, "(A) Mężczyzna");
-    GFX_TextParse(&txtOptX, staticTextBuf, "(X) Kobieta");
-    GFX_TextParse(&txtOptY, staticTextBuf, "(Y) Niebinarny");
-    GFX_TextParse(&txtOptB, staticTextBuf, "(B) Brak");
+    GFX_TextParse(&txtOptA, staticTextBuf, lang_strings[5]);
+    GFX_TextParse(&txtOptX, staticTextBuf, lang_strings[6]);
+    GFX_TextParse(&txtOptY, staticTextBuf, lang_strings[7]);
+    GFX_TextParse(&txtOptB, staticTextBuf, lang_strings[8]);
 
     GFX_TextOptimize(&txtNoWifi);
     GFX_TextOptimize(&txtCertError);
@@ -186,9 +189,75 @@ void sceneInitInit(void) {
         
         if (VOICEACT < 0) VOICEACT = 0;
         if (VOICEACT > 3) VOICEACT = 3;
+        cJSON *language = cJSON_GetObjectItem(jsonfl, "language");
+        if (!language) {
+            static SwkbdState swkbd;
+            static char langBuf[8] = "";
+            SwkbdButton button;
+
+            do {
+                swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, 2);
+                swkbdSetHintText(&swkbd, "Select language (PL or EN):");
+                swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
+
+                button = swkbdInputText(&swkbd, langBuf, sizeof(langBuf));
+
+                if (button == SWKBD_BUTTON_NONE)
+                    break; 
+
+            } while (strcmp(langBuf, "PL") != 0 &&
+                    strcmp(langBuf, "EN") != 0);
+
+            if (button != SWKBD_BUTTON_NONE) {
+                if (strcmp(langBuf, "PL") == 0) {
+                    currentLang = PL;
+                    loadLanguage(currentLang);
+                } else {
+                    currentLang = EN;
+                    loadLanguage(currentLang);
+                }
+            }
+        } else {
+            const char* langValue = cJSON_GetStringValue(language);
+            if (langValue && strcmp(langValue, "PL") == 0) {
+                currentLang = PL;
+            } else {
+                currentLang = EN;
+            }
+        }
 
         cJSON_Delete(jsonfl);
     } else {
+        static SwkbdState swkbd;
+        static char langBuf[8] = "";
+        SwkbdButton button;
+
+        do {
+            swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, 2);
+            swkbdSetHintText(&swkbd, "Select language (PL or EN):");
+            swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
+
+            button = swkbdInputText(&swkbd, langBuf, sizeof(langBuf));
+
+            if (button == SWKBD_BUTTON_NONE)
+                break; 
+
+        } while (strcmp(langBuf, "PL") != 0 &&
+                strcmp(langBuf, "EN") != 0);
+
+        if (button != SWKBD_BUTTON_NONE) {
+            if (strcmp(langBuf, "PL") == 0) {
+                currentLang = PL;
+                loadLanguage(currentLang);
+            } else {
+                currentLang = EN;
+                loadLanguage(currentLang);
+            }
+        }
+        cJSON *oproot = cJSON_CreateObject();
+        cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
+        cJSON_AddItemToObject(oproot, "language", cJSON_CreateString(currentLang == PL ? "PL" : "EN"));
+        save_json("/3ds/InPost3DS/opcje.json", oproot);
         VA_YES = false;
     }
 }
@@ -365,6 +434,7 @@ void sceneInitUpdate(uint32_t kDown, uint32_t kHeld) {
                     
                     cJSON *oproot = cJSON_CreateObject();
                     cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
+                    cJSON_AddItemToObject(oproot, "language", cJSON_CreateString(currentLang == PL ? "PL" : "EN"));
                     save_json("/3ds/InPost3DS/opcje.json", oproot);
                     cJSON_Delete(oproot);
                     

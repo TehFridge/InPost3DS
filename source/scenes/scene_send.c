@@ -19,6 +19,7 @@
 #include "../HAL/drawing.h"
 #include "../libs/cJSON.h"
 #include "../utils/utils.h"
+#include "../utils/lang.h"
 
 extern int paczka_count_sent;
 extern Paczka paczka_list_sent[];
@@ -95,7 +96,7 @@ static GFX_TEXTBUF detailsTextBuf;
 static GFX_TEXTBUF eventListBuf;   
 static GFX_TEXTBUF LBuf; 
 
-static GFX_TEXT text_name, text_addr, text_status, date_addr, text_event_line; 
+static GFX_TEXT text_name, text_addr, text_status, date_addr, text_event_line, historyTxt; 
 
 static int pressedBtnId = 0; 
 
@@ -356,9 +357,11 @@ void sceneSendInit(void) {
     LBuf = GFX_TextBufNew(4096);
 
 
-    GFX_TextParse(&no_parcels_text, detailsTextBuf, "Brak Paczek :(");
+    GFX_TextParse(&no_parcels_text, detailsTextBuf, lang_strings[31]);
     GFX_TextOptimize(&no_parcels_text);
-    GFX_TextParse(&L_text, LBuf, "L - Powrót");
+    GFX_TextParse(&L_text, LBuf, lang_strings[32]);
+    GFX_TextParse(&historyTxt, LBuf, lang_strings[33]);
+    GFX_TextOptimize(&historyTxt);
 
     if (!qrTexInitialized) {
         C3D_TexInit(&qrCodeTex, 128, 128, GPU_RGBA8);
@@ -867,14 +870,10 @@ static void drawHomeSceneContent(float offset, float transT, float finalZY) {
                 C2D_DrawImageAt(kuponkurwa, drawX + 3.0f + offset, drawY + 3.0f, 0.7f, &shadowT, finalScale, finalScale);
                 C2D_DrawImageAt(kuponkurwa, drawX + offset, drawY, 0.71f, &imgT, finalScale, finalScale);
             } else {
-                GFX_TEXT historyTxt;
-                GFX_TextBufClear(eventListBuf);
-                GFX_TextParse(&historyTxt, eventListBuf, "Historia Zdarzeń");
-                GFX_TextOptimize(&historyTxt);
                 GFX_DrawShadowedText(
                     &historyTxt,
                     historyX + offset,
-                    baseY,
+                    baseY - 20.0f,
                     0.7f,
                     1.0f,
                     1.0f, GFX_ALIGN_CENTER,
@@ -1115,7 +1114,7 @@ void sceneSendRender(void) {
                 GFX_DrawRectSolid(0.0f, scrollBaseY, 0.61f, 320.0f, 50.0f, GFX_COLOR_RGBA(255, 255, 255, (u8)(180 * fade)));
 
                 GFX_TEXT labelTxt, codeTxt;
-                GFX_TextParse(&labelTxt, eventListBuf, "Kod Nadania:");
+                GFX_TextParse(&labelTxt, eventListBuf, lang_strings[34]);
                 GFX_TextOptimize(&labelTxt);
                 GFX_DrawText(&labelTxt, 15.0f, scrollBaseY + 12.0f, 0.7f, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(100, 100, 100, codeAlpha));
 

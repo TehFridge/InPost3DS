@@ -1,6 +1,7 @@
 #ifndef SCENE_CREDITS_H
 #define SCENE_CREDITS_H
 #include <stdint.h>
+#include "../utils/lang.h"
 
 void sceneCreditsInit(void);
 void sceneCreditsUpdate(uint32_t kDown, uint32_t kHeld);

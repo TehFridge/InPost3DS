@@ -20,6 +20,7 @@
 #include "../libs/cJSON.h"
 #include "../utils/utils.h"
 #include "../utils/button.h"
+#include "../utils/lang.h"
 
 extern int paczka_count;
 extern Paczka paczka_list[];
@@ -96,7 +97,7 @@ static GFX_TEXTBUF detailsTextBuf;
 static GFX_TEXTBUF eventListBuf;   
 static GFX_TEXTBUF RBuf;
 
-static GFX_TEXT text_name, text_addr, text_status, date_addr, text_event_line; 
+static GFX_TEXT text_name, text_addr, text_status, date_addr, text_event_line, historyTxt; 
 
 static int pressedBtnId = 0; 
 
@@ -386,9 +387,11 @@ void sceneHomeMenuInit(void) {
     RBuf = GFX_TextBufNew(4096);
 
 
-    GFX_TextParse(&no_parcels_text, detailsTextBuf, "Brak Paczek :(");
+    GFX_TextParse(&no_parcels_text, detailsTextBuf, lang_strings[31]);
     GFX_TextOptimize(&no_parcels_text);
-    GFX_TextParse(&R_text, RBuf, "R - Wysłane Paczki");
+    GFX_TextParse(&R_text, RBuf, lang_strings[70]);
+    GFX_TextParse(&historyTxt, RBuf, lang_strings[33]);
+    GFX_TextOptimize(&historyTxt);
 
     if (!qrTexInitialized) {
         C3D_TexInit(&qrCodeTex, 128, 128, GPU_RGBA8);
@@ -959,14 +962,10 @@ static void drawHomeSceneContent(float offset, float transT, float finalZY) {
                 C2D_DrawImageAt(kuponkurwa, drawX + 3.0f + offset, drawY + 3.0f, 0.7f, &shadowT, finalScale, finalScale);
                 C2D_DrawImageAt(kuponkurwa, drawX + offset, drawY, 0.71f, &imgT, finalScale, finalScale);
             } else {
-                GFX_TEXT historyTxt;
-                GFX_TextBufClear(eventListBuf);
-                GFX_TextParse(&historyTxt, eventListBuf, "Historia Zdarzeń");
-                GFX_TextOptimize(&historyTxt);
                 GFX_DrawShadowedText(
                     &historyTxt,
                     historyX + offset,
-                    baseY,
+                    baseY - 20.0f,
                     0.7f,
                     1.0f,
                     1.0f, GFX_ALIGN_CENTER,
@@ -1303,11 +1302,11 @@ void sceneHomeMenuRender(void) {
         GFX_TextBufClear(eventListBuf); 
 
         if (showOpenConfirmation) {
-            GFX_TextParse(&qText, eventListBuf, "Czy chcesz otworzyć paczkomat?");
+            GFX_TextParse(&qText, eventListBuf, lang_strings[36]);
         } else {
-            GFX_TextParse(&qText, eventListBuf, "Czy paczka została odebrana?");
+            GFX_TextParse(&qText, eventListBuf, lang_strings[37]);
         }
-        GFX_TextParse(&optText, eventListBuf, "(A) Tak   (B) Nie");
+        GFX_TextParse(&optText, eventListBuf, lang_strings[38]);
         
         GFX_TextOptimize(&qText);
         GFX_TextOptimize(&optText);
@@ -1339,7 +1338,7 @@ void sceneHomeMenuRender(void) {
         
         GFX_TextBufClear(eventListBuf);
         GFX_TEXT titleTxt, valTxt, okTxt, restartMsg, tutTxt, dpadTxt; 
-        GFX_TextParse(&titleTxt, eventListBuf, "Ustawienia");
+        GFX_TextParse(&titleTxt, eventListBuf, lang_strings[39]);
         GFX_TextOptimize(&titleTxt);
         GFX_DrawText(&titleTxt, 160.0f - 40.0f, curY + 15.0f, 1.0f, 0.7f, 0.7f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(0,0,0,255));
 
@@ -1347,19 +1346,19 @@ void sceneHomeMenuRender(void) {
         char vaBuf[64];
         switch(VOICEACT) {
             case 0:
-                snprintf(vaBuf, 64, "< Głos: Off >");
+                snprintf(vaBuf, 64, lang_strings[40]);
                 break;
             case 1:
-                snprintf(vaBuf, 64, "< Głos: Męski >");
+                snprintf(vaBuf, 64, lang_strings[41]);
                 break;
             case 2:
-                snprintf(vaBuf, 64, "< Głos: Damski >");
+                snprintf(vaBuf, 64, lang_strings[42]);
                 break;
             case 3:
-                snprintf(vaBuf, 64, "< Głos: Niebinarny >");
+                snprintf(vaBuf, 64, lang_strings[43]);
                 break;
             default:
-                snprintf(vaBuf, 64, "< Głos: %d >", VOICEACT);
+                snprintf(vaBuf, 64, lang_strings[44], VOICEACT);
                 break;
         }
         
@@ -1382,21 +1381,21 @@ void sceneHomeMenuRender(void) {
 
         if (voiceChanged) {
             GFX_DrawRectSolid(160.0f - 70.0f, tutBtnY, 1.0f, 140.0f, 30.0f, GFX_COLOR_RGBA(150, 150, 150, 255));
-            GFX_TextParse(&tutTxt, eventListBuf, "Samouczek");
+            GFX_TextParse(&tutTxt, eventListBuf, lang_strings[45]);
             GFX_TextOptimize(&tutTxt);
             float wT, hT;
             GFX_TextGetDimensions(&tutTxt, 0.6f, 0.6f, &wT, &hT);
             GFX_DrawText(&tutTxt, 160.0f - (wT/2.0f), tutBtnY + 5.0f, 1.0f, 0.6f, 0.6f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(100,100,100,255));
         } else {
             GFX_DrawRectSolid(160.0f - 70.0f, tutBtnY, 1.0f, 140.0f, 30.0f, GFX_COLOR_RGBA(200, 200, 200, 255));
-            GFX_TextParse(&tutTxt, eventListBuf, "Samouczek");
+            GFX_TextParse(&tutTxt, eventListBuf, lang_strings[45]);
             GFX_TextOptimize(&tutTxt);
             float wT, hT;
             GFX_TextGetDimensions(&tutTxt, 0.6f, 0.6f, &wT, &hT);
             GFX_DrawText(&tutTxt, 160.0f - (wT/2.0f), tutBtnY + 5.0f, 1.0f, 0.6f, 0.6f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(0,0,0,255));
         }
 
-        GFX_TextParse(&restartMsg, eventListBuf, "(Zapisanie zmian spowoduje restart)");
+        GFX_TextParse(&restartMsg, eventListBuf, lang_strings[46]);
         GFX_TextOptimize(&restartMsg);
         float wM, hM;
         GFX_TextGetDimensions(&restartMsg, 0.5f, 0.5f, &wM, &hM);
@@ -1411,7 +1410,7 @@ void sceneHomeMenuRender(void) {
         GFX_DrawText(&okTxt, 160.0f - 23.5f, okBtnY + 5.0f, 1.0f, 0.6f, 0.6f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(255,255,255,255));
 
         GFX_TEXT cancelTxt;
-        GFX_TextParse(&cancelTxt, eventListBuf, "B - Anuluj");
+        GFX_TextParse(&cancelTxt, eventListBuf, lang_strings[47]);
         GFX_TextOptimize(&cancelTxt);
         float wC, hC;
         GFX_TextGetDimensions(&cancelTxt, 0.5f, 0.5f, &wC, &hC);

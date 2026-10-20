@@ -14,6 +14,7 @@
 #include "scene_mainmenu.h"
 #include "scene_searchpaczkomat.h"
 #include "scene_init.h"
+#include "../utils/lang.h"
 
 static u64 lastTick = 0;
 static float dt = 0.0f;
@@ -156,31 +157,31 @@ void sceneNadajInit(void) {
     
     nadajBuf = GFX_TextBufNew(2048);
     
-    GFX_TextParse(&text_size_select, nadajBuf, "Wybierz rozmiar paczki.");
+    GFX_TextParse(&text_size_select, nadajBuf, lang_strings[14]);
     GFX_TextOptimize(&text_size_select);
-    GFX_TextParse(&text_details, nadajBuf, "Wprowadź dane odbiorcy.");
+    GFX_TextParse(&text_details, nadajBuf, lang_strings[15]);
     GFX_TextOptimize(&text_details);
 
-    GFX_TextParse(&text_tf_imie, nadajBuf, imie_inputed ? reciever_info.firstName : "Imie Odbiorcy...");
+    GFX_TextParse(&text_tf_imie, nadajBuf, imie_inputed ? reciever_info.firstName : lang_strings[16]);
     GFX_TextOptimize(&text_tf_imie);
-    GFX_TextParse(&text_tf_nazwisko, nadajBuf, nazwisko_inputed ? reciever_info.lastName : "Nazwisko Odbiorcy...");
+    GFX_TextParse(&text_tf_nazwisko, nadajBuf, nazwisko_inputed ? reciever_info.lastName : lang_strings[17]);
     GFX_TextOptimize(&text_tf_nazwisko);
-    GFX_TextParse(&text_tf_email, nadajBuf, email_inputed ? reciever_info.email : "Email Odbiorcy...");
+    GFX_TextParse(&text_tf_email, nadajBuf, email_inputed ? reciever_info.email : lang_strings[18]);
     GFX_TextOptimize(&text_tf_email);
-    GFX_TextParse(&text_tf_phone, nadajBuf, phone_inputed ? reciever_info.phoneNumber : "Telefon Odbiorcy...");
+    GFX_TextParse(&text_tf_phone, nadajBuf, phone_inputed ? reciever_info.phoneNumber : lang_strings[19]);
     GFX_TextOptimize(&text_tf_phone);
-    GFX_TextParse(&A_text, nadajBuf, "Wciśnij A aby kontynuować");
+    GFX_TextParse(&A_text, nadajBuf, lang_strings[20]);
     GFX_TextOptimize(&A_text);
 
-    GFX_TextParse(&text_confirm_prompt, nadajBuf, "Czy wprowadzone dane\nsie zgadzają?");
+    GFX_TextParse(&text_confirm_prompt, nadajBuf, lang_strings[21]);
     GFX_TextOptimize(&text_confirm_prompt);
-    GFX_TextParse(&text_confirm_hint, nadajBuf, "A - Potwierdź   |   B - Popraw dane");
+    GFX_TextParse(&text_confirm_hint, nadajBuf, lang_strings[22]);
     GFX_TextOptimize(&text_confirm_hint);
-    GFX_TextParse(&text_blik_prompt, nadajBuf, "Wprowadź kod BLIK.");
+    GFX_TextParse(&text_blik_prompt, nadajBuf, lang_strings[23]);
     GFX_TextOptimize(&text_blik_prompt);
-    GFX_TextParse(&text_blik_btn, nadajBuf, "Podaj kod BLIK...");
+    GFX_TextParse(&text_blik_btn, nadajBuf, lang_strings[24]);
     GFX_TextOptimize(&text_blik_btn);
-    GFX_TextParse(&text_va_msg, nadajBuf, "Spakuj paczkę i umięść\nją w najbliższym paczkomacie\nw ciągu 30 dni.");
+    GFX_TextParse(&text_va_msg, nadajBuf, lang_strings[25]);
     GFX_TextOptimize(&text_va_msg);
 
     confirm_parsed = false;
@@ -282,13 +283,13 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
         }
         char buf[128];
 
-        GFX_TextParse(&text_titleA, nadajBuf, "Mała");
+        GFX_TextParse(&text_titleA, nadajBuf, lang_strings[26]);
         GFX_TextOptimize(&text_titleA);
-        GFX_TextParse(&text_titleB, nadajBuf, "Średnia");
+        GFX_TextParse(&text_titleB, nadajBuf, lang_strings[27]);
         GFX_TextOptimize(&text_titleB);
-        GFX_TextParse(&text_titleC, nadajBuf, "Duża");
+        GFX_TextParse(&text_titleC, nadajBuf, lang_strings[28]);
         GFX_TextOptimize(&text_titleC);
-        GFX_TextParse(&text_titleD, nadajBuf, "Mini");
+        GFX_TextParse(&text_titleD, nadajBuf, lang_strings[29]);
         GFX_TextOptimize(&text_titleD);
 
         snprintf(buf, sizeof(buf), "%.2fzł", parcelA_price);
@@ -304,16 +305,16 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
         GFX_TextParse(&text_priceD, nadajBuf, buf);
         GFX_TextOptimize(&text_priceD);
         
-        snprintf(buf, sizeof(buf), "max. %d x %d x %d cm do %d kg", parcelA_height, parcelA_width, parcelA_length, parcelA_weight);
+        snprintf(buf, sizeof(buf), lang_strings[25], parcelA_height, parcelA_width, parcelA_length, parcelA_weight);
         GFX_TextParse(&text_detailsA, nadajBuf, buf);
         GFX_TextOptimize(&text_detailsA);
-        snprintf(buf, sizeof(buf), "max. %d x %d x %d cm do %d kg", parcelB_height, parcelB_width, parcelB_length, parcelB_weight);
+        snprintf(buf, sizeof(buf), lang_strings[25], parcelB_height, parcelB_width, parcelB_length, parcelB_weight);
         GFX_TextParse(&text_detailsB, nadajBuf, buf);
         GFX_TextOptimize(&text_detailsB);
-        snprintf(buf, sizeof(buf), "max. %d x %d x %d cm do %d kg", parcelC_height, parcelC_width, parcelC_length, parcelC_weight);
+        snprintf(buf, sizeof(buf), lang_strings[25], parcelC_height, parcelC_width, parcelC_length, parcelC_weight);
         GFX_TextParse(&text_detailsC, nadajBuf, buf);
         GFX_TextOptimize(&text_detailsC);
-        snprintf(buf, sizeof(buf), "max. %d x %d x %d cm do %d kg", parcelD_height, parcelD_width, parcelD_length, parcelD_weight);
+        snprintf(buf, sizeof(buf), lang_strings[25], parcelD_height, parcelD_width, parcelD_length, parcelD_weight);
         GFX_TextParse(&text_detailsD, nadajBuf, buf);
         GFX_TextOptimize(&text_detailsD);
         ceny_parsed = true;
@@ -503,7 +504,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
                 if (reciever_info.parcelSize == 3) sizeChar = 'C';
                 if (reciever_info.parcelSize == 4) sizeChar = 'D';
 
-                snprintf(buf, sizeof(buf), "Odbiorca: %s %s\nTel: %s\nEmail: %s\nPaczkomat: %s\nRozmiar: %c",
+                snprintf(buf, sizeof(buf), lang_strings[68],
                          reciever_info.firstName, reciever_info.lastName, reciever_info.phoneNumber, 
                          reciever_info.email, reciever_info.boxMachineName, sizeChar);
                 

@@ -10,6 +10,7 @@
 #include "../utils/text.h"
 #include "scene_mainmenu.h"
 #include "../HAL/drawing.h"
+#include "../utils/lang.h"
 
 
 
@@ -131,7 +132,107 @@ static const char* creditLines[] = {
     "",
     ""
 };
+
+static const char* creditLinesEN[] = {
+    "InPost3DS",
+    "(Codename: ShroomPost)",
+    "",
+    "",
+    "PROGRAMMING",
+    "TehFridge",
+    "",
+    "",
+    "",
+    "GRAPHICS",
+    "",
+    "UI Design",
+    "TehFridge",
+    "",
+    "InPost Chan/Kun Design",
+    "Sansy (@fedora_maniac)",
+    "",
+    "Archon Mii Design",
+    "Arkadiusz \"Dark Archon\" Kamiński",
+    "",
+    "Easter Egg",
+    "Chiyoko",
+    "",
+    "",
+    "",
+    "SOUND DESIGN",
+    "",
+    "InPost Chan VA",
+    "Sansy (@fedora_maniac)",
+    "",
+    "InPost Kun VA",
+    "Nishi Yuuma",
+    "",
+    "Archon VA",
+    "Arkadiusz \"Dark Archon\" Kamiński",
+    "",
+    "Banner Jingle",
+    "Chiyoko",
+    "",
+    "Main Menu Music",
+    "John \"Joy\" Tay",
+    "",
+    "Credits Music",
+    "Takenobu Mitsuyoshi",
+    "Naofumi Hataya",
+    "Tomoko Sasaki",
+    "",
+    "Send Parcel Menu Music",
+    "Rei8Bit",
+    "",
+    "INPOST3DS BETATESTING TEAM",
+    "",
+    "MrowA Matsuri",
+    "Vahn Blackwood",
+    "igordes",
+    "Chiyoko",
+    "Szprink",
+    "Wafelq",
+    "mmaacio",
+    "fifi_sc",
+    "Reisu",
+    "Plesio",
+    "niishee",
+    "",
+    "Additional grettings to:",
+    "akirsonka",
+    "you're cool girl",
+    "",
+    "gencia",
+    "Thx for the charger",
+    "and a fanart <3",
+    "",
+    "BartkaGM",
+    "when's the new NGW :tf:", 
+    "",
+    "and all Remcon atendees",
+    "that were at the panel", 
+    "Thx for coming :D", 
+    "(AMBEREXPO plz clear the roof snow)", 
+    "",
+    "Best regards to",
+    "all of you who supported",
+    "me during the creation of this",
+    "project and in my private life.",
+    ":D",
+    "",
+    "Project is using the API of the",
+    "InPost Mobile App",
+    "",
+    "InPost is not associated in",
+    "any way with this project.",
+    "",
+    "All trademarks belong to their",
+    "respective owners.",
+    ""
+};
+
 #define CREDIT_LINE_COUNT (sizeof(creditLines)/sizeof(creditLines[0]))
+#define CREDIT_LINE_COUNT2 (sizeof(creditLinesEN)/sizeof(creditLinesEN[0]))
 
 void drawCaptureWaveform(float alphaVal) {
     if (!captureBuf || alphaVal <= 0.0f) return;
@@ -212,13 +313,23 @@ void sceneCreditsInit(void) {
 
     
     creditBuf = GFX_TextBufNew(4096);
-    for (int i = 0; i < CREDIT_LINE_COUNT; i++) {
-        GFX_TextParse(&creditText[i], creditBuf, creditLines[i]);
-        GFX_TextOptimize(&creditText[i]);
+    switch(currentLang) {
+        case PL:
+            for (int i = 0; i < CREDIT_LINE_COUNT; i++) {
+                GFX_TextParse(&creditText[i], creditBuf, creditLines[i]);
+                GFX_TextOptimize(&creditText[i]);
+            }
+            break;
+        case EN:
+            for (int i = 0; i < CREDIT_LINE_COUNT2; i++) {
+                GFX_TextParse(&creditText[i], creditBuf, creditLinesEN[i]);
+                GFX_TextOptimize(&creditText[i]);
+            }
+            break;
     }
 
     
-    GFX_TextParse(&exitText, creditBuf, "Wciśnij (B) by wyjść");
+    GFX_TextParse(&exitText, creditBuf, lang_strings[72]);
     GFX_TextOptimize(&exitText);
 }
 
