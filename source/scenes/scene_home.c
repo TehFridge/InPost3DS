@@ -799,8 +799,10 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
 
         if (!inDetailsMode) {
             if (kDown & KEY_R) {
-                sceneManagerSwitchTo(SCENE_SEND);
-                playCwav(4, true);
+                if (paczkasparsed && pers_data_done) {
+                    sceneManagerSwitchTo(SCENE_SEND);
+                    playCwav(4, true);
+                }
             }
             if (paczka_count > 0) {
                 bool changed = false;

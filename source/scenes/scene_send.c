@@ -641,8 +641,10 @@ void sceneSendUpdate(uint32_t kDown, uint32_t kHeld) {
 
         if (!inDetailsMode) {
             if (kDown & KEY_L) {
-                sceneManagerSwitchTo(SCENE_HOME_MENU);
-                playCwav(4, true);
+                if (paczkasparsed && pers_data_done) {
+                    sceneManagerSwitchTo(SCENE_HOME_MENU);
+                    playCwav(4, true);
+                }
             }
             if (paczka_count_sent > 0) {
                 bool changed = false;
