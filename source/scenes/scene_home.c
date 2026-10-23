@@ -772,14 +772,16 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
 
                 if (refresh_btn.clicked) {
                     if (osGetWifiStrength() > 0) {
-                        tryToGetPaczkas = false;
-                        paczkas.done = false;
-                        paczkasparsed = false;
+                        if (paczkasparsed && pers_data_done) {
+                            tryToGetPaczkas = false;
+                            paczkas.done = false;
+                            paczkasparsed = false;
 
-                        paczka_count = 0;
-                        pkgAnimTimer = 0.0f;
+                            paczka_count = 0;
+                            pkgAnimTimer = 0.0f;
 
-                        playCwav(4, true);
+                            playCwav(4, true);
+                        }
                     }
                 }
 
