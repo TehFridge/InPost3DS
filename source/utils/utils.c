@@ -1,11 +1,21 @@
 #include "utils.h"
 
-void jstrcpy(char *dst, size_t dstsz, cJSON *jstr){
-    if (cJSON_IsString(jstr) && jstr->valuestring) {
-        snprintf(dst, dstsz, "%s", jstr->valuestring);
-    } else {
+void jstrcpy(char *dst, size_t dstsz, cJSON *jstr)
+{
+    if (!dstsz) return;
+
+    const char *src = cJSON_IsString(jstr) ? jstr->valuestring : NULL;
+
+    if (!src) {
         dst[0] = '\0';
+        return;
     }
+
+    size_t len = strlen(src);
+    if (len >= dstsz) len = dstsz - 1;
+
+    memcpy(dst, src, len);
+    dst[len] = '\0';
 }
 
 void open_json(const char* path, cJSON** json)

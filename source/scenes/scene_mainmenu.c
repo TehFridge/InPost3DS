@@ -510,7 +510,7 @@ void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                 LoggedIn = true; 
                 showTutorialConfirmation = true;
                 if (VOICEACT != 0) {
-                    playCwav(26 + ((VOICEACT - 1) * 26), true);
+                    playCwav(26 + ((VOICEACT - 1) * 26), false);
                 }
                 tutorialPopupAnimTimer = 0.0f;
             }

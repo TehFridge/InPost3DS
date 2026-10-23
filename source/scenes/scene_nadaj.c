@@ -279,7 +279,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
     if (cena_paczkas.done && !ceny_parsed) {
         parseWysylkaCena(cena_paczkas.data);
         if (VOICEACT != 0) {
-            playCwav(85 + ((VOICEACT - 1) * 7), true);
+            playCwav(85 + ((VOICEACT - 1) * 7), false);
         }
         char buf[128];
 
@@ -390,7 +390,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
                 if (paczka_sizeD_btn.clicked) reciever_info.parcelSize = 4;
                 playCwav(4, true);
                 if (VOICEACT != 0) {
-                    playCwav(86 + ((VOICEACT - 1) * 7), true);
+                    playCwav(86 + ((VOICEACT - 1) * 7), false);
                 }
                 
                 current_nadaj_state = NADAJ_DETAILS;
@@ -490,7 +490,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
                 sceneManagerSwitchTo(SCENE_SEARCHPACZKOMAT);
                 current_nadaj_state = NADAJ_PROMPT_CONFIRM;
                 if (VOICEACT != 0) {
-                    playCwav(87 + ((VOICEACT - 1) * 7), true);
+                    playCwav(87 + ((VOICEACT - 1) * 7), false);
                 }
             }
             break;
@@ -514,7 +514,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
                 confirm_parsed = true;
                 confirm_ease_in = initEase(0.8f, EASE_OUT);
                 if (VOICEACT != 0) {
-                    playCwav(88 + ((VOICEACT - 1) * 7), true);
+                    playCwav(88 + ((VOICEACT - 1) * 7), false);
                 }
             }
 
@@ -548,7 +548,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
                 pay_ease_in = initEase(0.8f, EASE_OUT);
                 pay_triggered = false;
                 if (VOICEACT != 0) {
-                    playCwav(89 + ((VOICEACT - 1) * 7), true);
+                    playCwav(89 + ((VOICEACT - 1) * 7), false);
                 }
             }
             break;
@@ -606,7 +606,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
         case NADAJ_BLIK_CHECKER:
             if (reciever_info.parcelPaid) {
                 if (VOICEACT != 0) {
-                    playCwav(90 + ((VOICEACT - 1) * 7), true);
+                    playCwav(90 + ((VOICEACT - 1) * 7), false);
                 }
                 stop_CheckerThread();
                 va_timer = 0.0f;
@@ -619,7 +619,7 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
             va_timer += dt;
             if (va_timer >= 1.6f && !va_next_played) {
                 if (VOICEACT != 0) {
-                    playCwav(91 + ((VOICEACT - 1) * 7), true);
+                    playCwav(91 + ((VOICEACT - 1) * 7), false);
                 }
                 va_msg_ease_in = initEase(0.8f, EASE_OUT);
                 va_next_played = true;

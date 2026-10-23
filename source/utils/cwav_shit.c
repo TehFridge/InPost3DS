@@ -169,19 +169,16 @@ bool loadCwavIndex(u32 index)
     if (entry->loaded && entry->cwav)
         return true;
 
-    CWAV* cwav = malloc(sizeof(CWAV));
+    CWAV* cwav = calloc(1, sizeof(*cwav));
+    if (!cwav)
+        return false;
 
     log_to_file(
         "[CWAV] Alloc index=%u ptr=%p size=%zu\n",
         index,
         (void*)cwav,
-        sizeof(CWAV)
+        sizeof(*cwav)
     );
-
-    if (!cwav)
-        return false;
-
-    memset(cwav, 0, sizeof(CWAV));
 
     log_to_file(
         "[CWAV] Loading index=%u '%s'\n",
@@ -189,11 +186,7 @@ bool loadCwavIndex(u32 index)
         entry->filename
     );
 
-    cwavFileLoad(
-        cwav,
-        entry->filename,
-        maxSPlayList[index]
-    );
+    cwavFileLoad(cwav, entry->filename, maxSPlayList[index]);
 
     log_to_file(
         "[CWAV] Load result index=%u status=%s\n",
@@ -203,10 +196,6 @@ bool loadCwavIndex(u32 index)
 
     if (cwav->loadStatus != CWAV_SUCCESS)
     {
-        /*
-         * cwavFileLoad() may have allocated dataBuffer
-         * even if parsing later failed.
-         */
         cwavFileFree(cwav);
         free(cwav);
         return false;

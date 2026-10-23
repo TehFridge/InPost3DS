@@ -52,8 +52,9 @@ int paczka_count = 0;
 
 User uzytkownik = {0};
 
+//lubie ten endpoint bo se moge czas sprawdzić w szkole xD (naprawcie kiedyś czas w systemie plz)
 void testrequest(){
-    queue_request("https://inpost.pl/404", NULL, NULL, &testreq, false, GET);
+    queue_request("https://zabka-snrs.zabka.pl/v4/server/time", NULL, NULL, &testreq, false, GET);
 }
 
 // wyślij prośbe o kod sms na podany numer

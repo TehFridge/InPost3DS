@@ -45,27 +45,47 @@ static inline u32 rgba_to_abgr(u32 px) {
 }
 
 
-size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
-    if (!ptr || !userdata) return 0;
+size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    if (!userdata || (!ptr && size * nmemb != 0))
+        return 0;
+
+    if (size != 0 && nmemb > SIZE_MAX / size)
+        return 0;
 
     size_t total_size = size * nmemb;
+    if (total_size == 0)
+        return 0;
+
     ResponseBuffer *buf = (ResponseBuffer *)userdata;
 
-    LightLock_Lock(&global_response_lock);
-    buf->done = false; 
-    LightLock_Unlock(&global_response_lock);
-
-    size_t needed_size = buf->size + total_size + 1;
-    char *new_data = realloc(buf->data, needed_size);
-    if (!new_data) {
-        log_to_file("[write_callback] ERROR: realloc failed");
+    if (buf->size > SIZE_MAX - total_size - 1)
         return 0;
+
+    size_t needed = buf->size + total_size + 1;
+
+    if (needed > buf->capacity) {
+        size_t capacity = buf->capacity ? buf->capacity : 4096;
+
+        while (capacity < needed) {
+            if (capacity > SIZE_MAX / 2) {
+                capacity = needed;
+                break;
+            }
+            capacity *= 2;
+        }
+
+        char *tmp = realloc(buf->data, capacity);
+        if (!tmp)
+            return 0;
+
+        buf->data = tmp;
+        buf->capacity = capacity;
     }
 
-    buf->data = new_data;
     memcpy(buf->data + buf->size, ptr, total_size);
     buf->size += total_size;
-    buf->data[buf->size] = '\0'; 
+    buf->data[buf->size] = '\0';
 
     return total_size;
 }
@@ -145,11 +165,9 @@ retry_request:
         }
     }
 
-    if (response_buf->data) {
-        free(response_buf->data);
-        response_buf->data = NULL;
-    }
     response_buf->size = 0;
+
+    if (response_buf->data) response_buf->data[0] = '\0';
 
     curl_easy_reset(curl);
 

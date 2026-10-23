@@ -1,3 +1,3 @@
---atlas -f rgba4 -z auto
+--atlas -f etc1 -z auto -q low
 tut_bot0.png
 tut_bot1.png

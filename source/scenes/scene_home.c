@@ -460,7 +460,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                 case 0:
                     break;
                 default:
-                    playCwav(28 + (va_offset2 * 26), true);
+                    playCwav(28 + (va_offset2 * 26), false);
                     break;
             }
             showPickupConfirmation = true;
@@ -506,7 +506,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                 cJSON *oproot = cJSON_CreateObject();
 
                 cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
-
+                cJSON_AddItemToObject(oproot, "language", cJSON_CreateString(currentLang == PL ? "PL" : "EN"));
                 save_json("/3ds/InPost3DS/opcje.json", oproot);
                 cJSON_Delete(oproot);
                 stopCwav(1);
@@ -522,6 +522,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
             cJSON *oproot = cJSON_CreateObject();
 
             cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
+            cJSON_AddItemToObject(oproot, "language", cJSON_CreateString(currentLang == PL ? "PL" : "EN"));
 
             save_json("/3ds/InPost3DS/opcje.json", oproot);
             cJSON_Delete(oproot);
@@ -705,7 +706,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                                 case 0:
                                     break;
                                 default:
-                                    playCwav(27 + (va_offset2 * 26), true);
+                                    playCwav(27 + (va_offset2 * 26), false);
                                     break;
                             }
                             showOpenConfirmation = true;

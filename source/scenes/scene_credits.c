@@ -263,7 +263,6 @@ void drawCaptureWaveform(float alphaVal) {
 
     const float normalizeMult = 80.0f / 32768.0f;
 
-    // --- 2. FAST RENDER WITH SPATIAL GLUE ---
     for (int x = 0; x < 400; x += 2) {
         int readIndex = x * step;
         if (readIndex >= (CAPTURE_SIZE / 2)) break;

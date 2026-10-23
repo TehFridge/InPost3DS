@@ -424,7 +424,7 @@ void sceneSendUpdate(uint32_t kDown, uint32_t kHeld) {
                 case 0:
                     break;
                 default:
-                    playCwav(28 + (va_offset2 * 26), true);
+                    playCwav(28 + (va_offset2 * 26), false);
                     break;
             }
             showPickupConfirmation = true;

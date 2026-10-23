@@ -40,7 +40,7 @@ GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 #---------------------------------------------------------------------------------
-APP_VER				:= 1040
+APP_VER				:= 1041
 APP_TITLE			:= InPost3DS
 APP_DESCRIPTION		:= Klient InPostu na Nintendo 3DS
 APP_AUTHOR			:= TehFridge
@@ -77,19 +77,19 @@ else
     # Release Flags:
     # -O2: High optimization (standard for release)
     # -DNDEBUG: Standard macro to disable asserts
-    CFLAGS := $(BaseCFLAGS) -O2 -DNDEBUG
+    CFLAGS := $(BaseCFLAGS) -O2 -DNDEBUG -flto
 endif
 
 # Append libraries and includes to the final CFLAGS
-CFLAGS  +=  $(INCLUDE) -D__3DS__ `$(PREFIX)pkg-config vorbisidec --cflags`
+CFLAGS  +=  $(INCLUDE) -D__3DS__ 
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
-LDFLAGS = -specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) -Wl,--gc-sections
+LDFLAGS = -specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) -Wl,--gc-sections 
 
 
-LIBS	:= `curl-config --libs` -lcitro2d -lcitro3d -lctru -lm `$(PREFIX)pkg-config vorbisidec --libs` -lcwav -lncsnd -ljansson -lmbedtls -lmbedcrypto -ljpeg
+LIBS	:= `curl-config --libs` -lcitro2d -lcitro3d -lctru -lm -lcwav -lncsnd -ljpeg
 
 
 #---------------------------------------------------------------------------------

@@ -167,21 +167,21 @@ void sceneTutorialInit(void) {
             for(int i = 0; i < totalSteps; i++) {
                 getCwav(5  + i + (26 * offset));
             }
-            playCwav(5 + currentStep + (26 * offset), true);
+            playCwav(5 + currentStep + (26 * offset), false);
             break;
         case 2:
             offset = 1;
             for(int i = 0; i < totalSteps; i++) {
                 getCwav(5  + i + (26 * offset));
             }
-            playCwav(5 + currentStep + (26 * offset), true);
+            playCwav(5 + currentStep + (26 * offset), false);
             break;
         case 3:
             offset = 2;
             for(int i = 0; i < totalSteps; i++) {
                 getCwav(5  + i + (26 * offset));
             }
-            playCwav(5 + currentStep + (26 * offset), true);
+            playCwav(5 + currentStep + (26 * offset), false);
             break;
         default:
 
@@ -278,7 +278,7 @@ void sceneTutorialUpdate(uint32_t kDown, uint32_t kHeld) {
                     case 0:
                         break;
                     default:
-                        playCwav(5 + currentStep + (26 * offset), true);
+                        playCwav(5 + currentStep + (26 * offset), false);
                         break;
                 }
 
