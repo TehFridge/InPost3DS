@@ -433,72 +433,6 @@ void sceneSendUpdate(uint32_t kDown, uint32_t kHeld) {
         }
     }
 
-
-    if (inSettingsMode) {
-        touchPosition touch;
-        hidTouchRead(&touch);
-
-
-        if (kDown & KEY_LEFT) {
-            VOICEACT--;
-            if (VOICEACT < 0) VOICEACT = 0;
-            va_offset2 = VOICEACT - 1;
-            playCwav(3, true);
-        }
-        if (kDown & KEY_RIGHT) {
-            VOICEACT++;
-            if (VOICEACT > 3) VOICEACT = 3;
-            va_offset2 = VOICEACT - 1;
-            playCwav(3, true);
-        }
-
-
-        if (kDown & KEY_TOUCH) {
-
-            if (VOICEACT == initialVoiceAct) {
-                if (touch.py >= 110 && touch.py <= 140 && touch.px >= 90 && touch.px <= 230) {
-                     inSettingsMode = false;
-                     sceneManagerSwitchTo(SCENE_TUTORIAL);
-                     playCwav(4, true);
-                }
-            }
-
-
-            if (touch.py >= 180 && touch.py <= 210 && touch.px >= 110 && touch.px <= 210) {
-                inSettingsMode = false;
-                cJSON *oproot = cJSON_CreateObject();
-
-                cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
-
-                save_json("/3ds/InPost3DS/opcje.json", oproot);
-                cJSON_Delete(oproot);
-                stopCwav(1);
-                freeAllCwavs();
-                sceneManagerSwitchTo(SCENE_MAIN_MENU);
-            }
-        }
-
-        if (kDown & KEY_A) {
-            inSettingsMode = false;
-            cJSON *oproot = cJSON_CreateObject();
-
-            cJSON_AddItemToObject(oproot, "VA", cJSON_CreateNumber(VOICEACT));
-
-            save_json("/3ds/InPost3DS/opcje.json", oproot);
-            cJSON_Delete(oproot);
-            stopCwav(1);
-            freeAllCwavs();
-            sceneManagerSwitchTo(SCENE_MAIN_MENU);
-        }
-
-        if (kDown & KEY_B) {
-            inSettingsMode = false;
-            playCwav(4, true);
-        }
-        return;
-    }
-
-
     if (!tryToGetPaczkas){
         getWyslanePaczkas();
         tryToGetPaczkas = true;
@@ -694,10 +628,12 @@ void sceneSendUpdate(uint32_t kDown, uint32_t kHeld) {
                 }
 
 
-                if (kDown & KEY_TOUCH) {
-                    if (touch.px >= 250 && touch.px <= 315 && touch.py >= 5 && touch.py <= 45) {
-                        sceneManagerSwitchTo(SCENE_NADAJ);
-                        playCwav(4, true);
+                if (kDown & KEY_TOUCH) { 
+                    if (osGetWifiStrength() > 0){
+                        if (touch.px >= 250 && touch.px <= 315 && touch.py >= 5 && touch.py <= 45) {
+                            sceneManagerSwitchTo(SCENE_NADAJ);
+                            playCwav(4, true);
+                        }
                     }
                 }
             }
@@ -1206,100 +1142,7 @@ void sceneSendRender(void) {
         GFX_DrawText(&qText, 160.0f - (wQ/2), curY + (20.0f * ease), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
         GFX_DrawText(&optText, 160.0f - (wO/2), curY + (60.0f * ease), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
     }
-
-    if (inSettingsMode) {
-        
-        GFX_DrawRectSolid(0, 0, 0.99f, 320, 240, GFX_COLOR_RGBA(0, 0, 0, 180));
-        
-
-        float mwW = 280.0f;
-        float mwH = 220.0f;
-        float curX = (320.0f - mwW) / 2.0f;
-        float curY = (240.0f - mwH) / 2.0f; 
-        
-        GFX_DrawRectSolid(curX, curY, 0.995f, mwW, mwH, GFX_COLOR_RGBA(255, 255, 255, 255));
-        
-        
-        GFX_TextBufClear(eventListBuf);
-        GFX_TEXT titleTxt, valTxt, okTxt, restartMsg, tutTxt, dpadTxt; 
-        GFX_TextParse(&titleTxt, eventListBuf, "Ustawienia");
-        GFX_TextOptimize(&titleTxt);
-        GFX_DrawText(&titleTxt, 160.0f - 40.0f, curY + 15.0f, 1.0f, 0.7f, 0.7f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(0,0,0,255));
-
-        
-        char vaBuf[64];
-        switch(VOICEACT) {
-            case 0:
-                snprintf(vaBuf, 64, "< Głos: Off >");
-                break;
-            case 1:
-                snprintf(vaBuf, 64, "< Głos: Męski >");
-                break;
-            case 2:
-                snprintf(vaBuf, 64, "< Głos: Damski >");
-                break;
-            case 3:
-                snprintf(vaBuf, 64, "< Głos: Niebinarny >");
-                break;
-            default:
-                snprintf(vaBuf, 64, "< Głos: %d >", VOICEACT);
-                break;
-        }
-        
-        GFX_TextParse(&valTxt, eventListBuf, vaBuf);
-        GFX_TextOptimize(&valTxt);
-        
-        float wV, hV;
-        GFX_TextGetDimensions(&valTxt, 0.8f, 0.8f, &wV, &hV);
-        GFX_DrawText(&valTxt, 160.0f - (wV/2.0f), curY + 45.0f, 1.0f, 0.8f, 0.8f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(50,50,50,255));
-
-        GFX_TextParse(&dpadTxt, eventListBuf, "(D-Pad)");
-        GFX_TextOptimize(&dpadTxt);
-        float wD, hD;
-        GFX_TextGetDimensions(&dpadTxt, 0.5f, 0.5f, &wD, &hD);
-        GFX_DrawText(&dpadTxt, 160.0f - (wD/2.0f), curY + 70.0f, 1.0f, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(100,100,100,255));
-
-
-        float tutBtnY = curY + 100.0f;
-        bool voiceChanged = (VOICEACT != initialVoiceAct);
-
-        if (voiceChanged) {
-            GFX_DrawRectSolid(160.0f - 70.0f, tutBtnY, 1.0f, 140.0f, 30.0f, GFX_COLOR_RGBA(150, 150, 150, 255));
-            GFX_TextParse(&tutTxt, eventListBuf, "Samouczek");
-            GFX_TextOptimize(&tutTxt);
-            float wT, hT;
-            GFX_TextGetDimensions(&tutTxt, 0.6f, 0.6f, &wT, &hT);
-            GFX_DrawText(&tutTxt, 160.0f - (wT/2.0f), tutBtnY + 5.0f, 1.0f, 0.6f, 0.6f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(100,100,100,255));
-        } else {
-            GFX_DrawRectSolid(160.0f - 70.0f, tutBtnY, 1.0f, 140.0f, 30.0f, GFX_COLOR_RGBA(200, 200, 200, 255));
-            GFX_TextParse(&tutTxt, eventListBuf, "Samouczek");
-            GFX_TextOptimize(&tutTxt);
-            float wT, hT;
-            GFX_TextGetDimensions(&tutTxt, 0.6f, 0.6f, &wT, &hT);
-            GFX_DrawText(&tutTxt, 160.0f - (wT/2.0f), tutBtnY + 5.0f, 1.0f, 0.6f, 0.6f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(0,0,0,255));
-        }
-
-        GFX_TextParse(&restartMsg, eventListBuf, "(Zapisanie zmian spowoduje restart)");
-        GFX_TextOptimize(&restartMsg);
-        float wM, hM;
-        GFX_TextGetDimensions(&restartMsg, 0.5f, 0.5f, &wM, &hM);
-        
-        GFX_DrawText(&restartMsg, 160.0f - (wM/2.0f), curY + 145.0f, 1.0f, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(200,0,0,255));
-        
-
-        float okBtnY = curY + 170.0f;
-        GFX_DrawRectSolid(160.0f - 50.0f, okBtnY, 1.0f, 100.0f, 30.0f, GFX_COLOR_RGBA(0, 150, 0, 255));
-        GFX_TextParse(&okTxt, eventListBuf, "OK (A)");
-        GFX_TextOptimize(&okTxt);
-        GFX_DrawText(&okTxt, 160.0f - 23.5f, okBtnY + 5.0f, 1.0f, 0.6f, 0.6f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(255,255,255,255));
-
-        GFX_TEXT cancelTxt;
-        GFX_TextParse(&cancelTxt, eventListBuf, "B - Anuluj");
-        GFX_TextOptimize(&cancelTxt);
-        float wC, hC;
-        GFX_TextGetDimensions(&cancelTxt, 0.5f, 0.5f, &wC, &hC);
-        GFX_DrawText(&cancelTxt, 160.0f - (wC/2.0f), curY + 203.0f, 1.0f, 0.5f, 0.5f, GFX_ALIGN_LEFT, GFX_COLOR_RGBA(100,100,100,255));
-    }   
+ 
     if (openingSpinnerAlpha > 0.0f) {
         u8 spinBgAlpha = (u8)(100.0f * openingSpinnerAlpha);
         GFX_DrawRectSolid(0, 0, 0.985f, 320, 240, GFX_COLOR_RGBA(0, 0, 0, spinBgAlpha));
