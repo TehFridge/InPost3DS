@@ -14,6 +14,7 @@
 #include "scene_init.h"
 #include "../HAL/drawing.h"
 #include "../utils/lang.h"
+#include "../utils/anim.h"
 static u64 lastTick = 0;
 static float dt = 0.0f;
 
@@ -21,18 +22,9 @@ static float dt = 0.0f;
 static float tut_bg_x = 0.0f;
 static float tut_scroll_speed = 0.5f;
 
-
-float easeOutCubicTut(float t) {
-    float f = 1.0f - t;
-    return 1.0f - (f * f * f);
-}
-
-float easeOutBackImg(float t) {
-    const float c1 = 1.70158f;
-    const float c3 = c1 + 1.0f;
-    float f = t - 1.0f;
-    return 1.0f + c3 * (f * f * f) + c1 * (f * f);
-}
+static Ease dialogue_ease;
+static Ease char_ease;
+static Ease pop_ease;
 
 
 typedef struct {
@@ -82,7 +74,9 @@ void sceneTutorialInit(void) {
     dt = 0.0f;
     currentStep = 0;
     
-    
+    dialogue_ease = initEase(1.2f, EASE_OUT);
+    char_ease = initEase(1.2f, EASE_OUT);
+    pop_ease =  initEase(0.8f, EASE_OUTBACKMM);
     speechTimer = 0.0f;
     if (VOICEACT != 3) {
         currentDisplayedCharId = tutorialScript[currentStep].speakingImageId;
@@ -197,7 +191,9 @@ void sceneTutorialUpdate(uint32_t kDown, uint32_t kHeld) {
     dt = (float)(currentTick - lastTick) / CPU_TICKS_PER_MSEC / 1000.0f;
     lastTick = currentTick;
     if (dt > 0.1f) dt = 0.1f;
-
+    updateEase(&pop_ease);
+    updateEase(&dialogue_ease);
+    updateEase(&char_ease);
     
     speechTimer += dt;
     if (VOICEACT != 3) {
@@ -266,7 +262,23 @@ void sceneTutorialUpdate(uint32_t kDown, uint32_t kHeld) {
                         stopCwav(5  + currentStep + (26 * offset));
                         break;
                 }
-                
+                // ej wsm dobra, porównywanie pointerów ma sens xD.
+                switch(VOICEACT) {
+                    case 3:
+                        if (tutorialScript_arhn[currentStep].topImage != tutorialScript_arhn[currentStep+1].topImage) {
+                            isBouncing = true;
+                            pop_ease =  initEase(0.8f, EASE_OUTBACKMM);
+                        } else {
+                            isBouncing = false;
+                        }              
+                    default:
+                        if (tutorialScript[currentStep].topImage != tutorialScript[currentStep+1].topImage) {
+                            isBouncing = true;
+                            pop_ease =  initEase(0.8f, EASE_OUTBACKMM);
+                        } else {
+                            isBouncing = false;
+                        }
+                }
                 currentStep = nextStep;
                 speechTimer = 0.0f;
                 if (VOICEACT != 3) {
@@ -291,6 +303,7 @@ void sceneTutorialUpdate(uint32_t kDown, uint32_t kHeld) {
                 GFX_TextOptimize(&currentTextObj);
                 
                 isBouncing = true;
+                
                 charBounceTimer = 0.0f;
             }
         }
@@ -305,55 +318,33 @@ void drawTutorialTop(float offset) {
     GFX_DrawImageAt(bg_top, tut_bg_x - 560 + offset, 0.0f, 0.0f, NULL, 1.0f, 1.0f);
     GFX_DrawImageAt(bg_top, tut_bg_x + offset, 0.0f, 0.0f, NULL, 1.0f, 1.0f);
 
-    float entranceT = entranceTimer / ENTRANCE_DURATION;
-    if (entranceT > 1.0f) entranceT = 1.0f;
-    
-    float dialogEase = easeOutCubicTut(entranceT);
-    
-    float charStart = 0.3f;
-    float charT = (entranceT - charStart) / (1.0f - charStart);
-    if (charT < 0.0f) charT = 0.0f;
-    if (charT > 1.0f) charT = 1.0f;
-    float charEase = easeOutCubicTut(charT);
     if (VOICEACT != 3) {
         if (tutorialScript[currentStep].topImage != NULL) {
             GFX_IMAGE* img = tutorialScript[currentStep].topImage;
-            
-            float animT = topImgTimer / IMG_ANIM_DURATION;
-            if (animT > 1.0f) animT = 1.0f;
-            float popScale = easeOutBackImg(animT);
-            
-            if (popScale < 0.0f) popScale = 0.0f;
-
-            float drawW = img->width * popScale;
-            float drawH = img->height * popScale;
+            float drawW = img->width * pop_ease.value;
+            float drawH = img->height * pop_ease.value;
 
             float x = 200.0f - (drawW / 2.0f);
             float y = 120.0f - (drawH / 2.0f);
             
-            GFX_DrawImageAt(img, x + offset, y, 0.5f, NULL, popScale, popScale);
+            GFX_DrawImageAt(img, x + offset, y, 0.5f, NULL, pop_ease.value, pop_ease.value);
         }
     } else {
         if (tutorialScript_arhn[currentStep].topImage != NULL) {
             GFX_IMAGE* img = tutorialScript_arhn[currentStep].topImage;
-            
-            float animT = topImgTimer / IMG_ANIM_DURATION;
-            if (animT > 1.0f) animT = 1.0f;
-            float popScale = easeOutBackImg(animT);
-            
-            if (popScale < 0.0f) popScale = 0.0f;
+        
 
-            float drawW = img->width * popScale;
-            float drawH = img->height * popScale;
+            float drawW = img->width * pop_ease.value;
+            float drawH = img->height * pop_ease.value;
 
             float x = 200.0f - (drawW / 2.0f);
             float y = 120.0f - (drawH / 2.0f);
             
-            GFX_DrawImageAt(img, x + offset, y, 0.5f, NULL, popScale, popScale);
+            GFX_DrawImageAt(img, x + offset, y, 0.5f, NULL, pop_ease.value, pop_ease.value);
         } 
     }
 
-    float charBaseX = -180.0f + (200.0f * charEase); 
+    float charBaseX = -180.0f + (200.0f * char_ease.value); 
     float charBaseY = 40.0f;
     
     float bounceY = 0.0f;
@@ -369,7 +360,7 @@ void drawTutorialTop(float offset) {
     float targetBoxY = 240.0f - boxH;
     float startBoxY = 240.0f; 
     
-    float currentBoxY = startBoxY - ((startBoxY - targetBoxY) * dialogEase);
+    float currentBoxY = startBoxY - ((startBoxY - targetBoxY) * dialogue_ease.value);
     
     u32 colorTop = GFX_COLOR_RGBA(0, 0, 0, 220);
     u32 colorBot = GFX_COLOR_RGBA(50, 50, 80, 240);
@@ -488,37 +479,25 @@ void sceneTutorialRender(void) {
         if (tutorialScript[currentStep].bottomImage != NULL) {
             GFX_IMAGE* img = tutorialScript[currentStep].bottomImage;
 
-            float animT = botImgTimer / IMG_ANIM_DURATION;
-            if (animT > 1.0f) animT = 1.0f;
-            float popScale = easeOutBackImg(animT);
-
-            if (popScale < 0.0f) popScale = 0.0f;
-
-            float drawW = img->width * popScale;
-            float drawH = img->height * popScale;
+            float drawW = img->width * pop_ease.value;
+            float drawH = img->height * pop_ease.value;
 
             float x = 160.0f - (drawW / 2.0f);
             float y = 120.0f - (drawH / 2.0f);
 
-            GFX_DrawImageAt(img, x, y, 0.5f, NULL, popScale, popScale);
+            GFX_DrawImageAt(img, x, y, 0.5f, NULL, pop_ease.value, pop_ease.value);
         }
     } else {
         if (tutorialScript_arhn[currentStep].bottomImage != NULL) {
             GFX_IMAGE* img = tutorialScript_arhn[currentStep].bottomImage;
 
-            float animT = botImgTimer / IMG_ANIM_DURATION;
-            if (animT > 1.0f) animT = 1.0f;
-            float popScale = easeOutBackImg(animT);
-
-            if (popScale < 0.0f) popScale = 0.0f;
-
-            float drawW = img->width * popScale;
-            float drawH = img->height * popScale;
+            float drawW = img->width * pop_ease.value;
+            float drawH = img->height * pop_ease.value;
 
             float x = 160.0f - (drawW / 2.0f);
             float y = 120.0f - (drawH / 2.0f);
 
-            GFX_DrawImageAt(img, x, y, 0.5f, NULL, popScale, popScale);
+            GFX_DrawImageAt(img, x, y, 0.5f, NULL, pop_ease.value, pop_ease.value);
         }
     }
 
@@ -539,29 +518,6 @@ void sceneTutorialExit(void) {
     GFX_TextBufDelete(tutorialTextBuf);
     GFX_TextBufDelete(promptBuf);
     
-    // switch(VOICEACT) {
-    //     case 1:
-    //         offset = 0;
-    //         for(int i = 0; i < totalSteps; i++) {
-    //             unloadCwavIndex(5  + i + (26 * offset));
-    //         }
-    //         break;
-    //     case 2:
-    //         offset = 1;
-    //         for(int i = 0; i < totalSteps; i++) {
-    //             unloadCwavIndex(5  + i + (26 * offset));
-    //         }
-    //         break;
-    //     case 3:
-    //         offset = 2;
-    //         for(int i = 0; i < totalSteps; i++) {
-    //             unloadCwavIndex(5  + i + (26 * offset));
-    //         }
-    //         break;
-    //     default:
-
-    //         break;
-    // } 
     stopCwav(5 + currentStep + (26 * offset));
 
 }
