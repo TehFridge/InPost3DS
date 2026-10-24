@@ -29,7 +29,6 @@ extern Paczka paczka_list[];
 static Ease trans_ease;
 static Ease trans2_ease;
 static Ease button_ease;
-static Ease base_ease;
 static Ease last_ease;
 
 static int formatIsoDateTime(const char* iso, char* out, size_t outsz) {
@@ -339,7 +338,6 @@ void sceneHomeMenuInit(void) {
     trans_ease = initEase(1.0f, EASE_OUT);
     trans2_ease = initEase(0.6f, EASE_OUT);
     button_ease = initEase(0.6f, EASE_OUT);
-    base_ease = initEase(1.0f, EASE_OUT);
     last_ease = initEase(0.6f, EASE_OUTBACKMM);
     C2D_PlainImageTint(&dotTint, GFX_COLOR_RGBA(255, 255, 255, 255), 1.0f);
     C2D_PlainImageTint(&shadowTint, GFX_COLOR_RGBA(0, 0, 0, 80), 1.0f);
@@ -778,7 +776,6 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                             trans_ease = initEase(1.0f, EASE_OUT);
                             trans2_ease = initEase(0.6f, EASE_OUT);
                             button_ease = initEase(0.6f, EASE_OUT);
-                            base_ease = initEase(1.0f, EASE_OUT);
                             last_ease = initEase(0.6f, EASE_OUTBACKMM);
                             tryToGetPaczkas = false;
                             paczkas.done = false;
@@ -1086,7 +1083,7 @@ void sceneHomeMenuRender(void) {
             const float spacing = 114.0f;
             const float startX = 25.0f;
             const float entryStaggerDelay = 0.15f;
-            const float entryDuration = 0.4f;
+            const float entryDuration = 0.9f;
             const float startY = 260.0f;
             const float targetY = 80.0f;
 
