@@ -20,7 +20,7 @@ static u64 lastTick = 0;
 static float dt = 0.0f;
 static float dtScale = 1.0f;
 static float spinnerAngle = 0.0f;
-static float spinnerRadius = 20.0f;
+
 static float spinnerSpeed = 180.0f;
 
 static Ease flash_ease;
@@ -97,13 +97,12 @@ typedef enum {
 } NadajState;
 
 static NadajState current_nadaj_state = NADAJ_INIT;
-static int va_offset;
+
 static float va_timer = 0.0f;
 static bool va_next_played = false;
 
 void sceneNadajInit(void) {
     reciever_info.parcelPaid = false;
-    bool returning_from_elsewhere = (phone_inputed && imie_inputed && nazwisko_inputed && email_inputed);
     wysylka_request_sent = false;
     stopCwav(1);
     
@@ -430,12 +429,11 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
             if (tf_imie_btn.clicked) {
                 char mybuf[256];
                 SwkbdState swkbd;
-                SwkbdButton button = SWKBD_BUTTON_NONE;
 
                 swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 1, 59);
                 swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY, 0, 0);
 
-                button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+                swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
 
                 GFX_TextParse(&text_tf_imie, nadajBuf, mybuf);
                 GFX_TextOptimize(&text_tf_imie);
@@ -445,12 +443,10 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
             if (tf_nazwisko_btn.clicked) {
                 char mybuf[256];
                 SwkbdState swkbd;
-                SwkbdButton button = SWKBD_BUTTON_NONE;
-
                 swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 1, 59);
                 swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY, 0, 0);
 
-                button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+                swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
 
                 GFX_TextParse(&text_tf_nazwisko, nadajBuf, mybuf);
                 GFX_TextOptimize(&text_tf_nazwisko);
@@ -460,12 +456,10 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
             if (tf_email_btn.clicked) {
                 char mybuf[256];
                 SwkbdState swkbd;
-                SwkbdButton button = SWKBD_BUTTON_NONE;
-
                 swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 1, 59);
                 swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY, 0, 0);
 
-                button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+                swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
 
                 GFX_TextParse(&text_tf_email, nadajBuf, mybuf);
                 GFX_TextOptimize(&text_tf_email);
@@ -475,12 +469,11 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
             if (tf_phone_btn.clicked) {
                 char mybuf[256];
                 SwkbdState swkbd;
-                SwkbdButton button = SWKBD_BUTTON_NONE;
                 swkbdInit(&swkbd, SWKBD_TYPE_NUMPAD, 1, 9);
                 swkbdSetPasswordMode(&swkbd, SWKBD_PASSWORD_HIDE_DELAY);
                 swkbdSetValidation(&swkbd, SWKBD_FIXEDLEN, 0, 0);
                 swkbdSetFeatures(&swkbd, SWKBD_FIXED_WIDTH);
-                button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+                swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
                 GFX_TextParse(&text_tf_phone, nadajBuf, mybuf);
                 GFX_TextOptimize(&text_tf_phone);
                 strncpy(reciever_info.phoneNumber, mybuf, sizeof(reciever_info.phoneNumber) - 1);
@@ -560,14 +553,13 @@ void sceneNadajUpdate(uint32_t kDown, uint32_t kHeld) {
                 playCwav(4, true);
                 char mybuf[256];
                 SwkbdState swkbd;
-                SwkbdButton button = SWKBD_BUTTON_NONE;
-
+                SwkbdButton button;
                 swkbdInit(&swkbd, SWKBD_TYPE_NUMPAD, 1, 6);
                 swkbdSetPasswordMode(&swkbd, SWKBD_PASSWORD_HIDE_DELAY);
                 swkbdSetValidation(&swkbd, SWKBD_FIXEDLEN, 6, 6);
                 swkbdSetFeatures(&swkbd, SWKBD_FIXED_WIDTH);
                 
-                button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+                swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
                 strncpy(
                     reciever_info.blikCode,
                     mybuf,

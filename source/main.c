@@ -21,43 +21,19 @@
 #include "HAL/drawing.h"
 #include "HAL/data.h"
 
-#define FRAME_MS (1000.0f / 60.0f)
-#define MAX_SPRITES   1
-#define SCREEN_WIDTH  400
-#define SCREEN_HEIGHT 240
 #define SOC_ALIGN       0x1000
 #define SOC_BUFFERSIZE  0x300000
 
-
-#define fmin(a, b) ((a) < (b) ? (a) : (b))
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 struct memory {
     char *response;
     size_t size;
 };
 
-bool cpu_debug = false;
-extern bool logplz, readingoferta, json_done, citra_machen;
-extern float text_w, text_h, max_scroll;
-
 extern int cwavCount;
 size_t linear_bytes_used = 0;
-bool pausedForSleep = false;
-int Scene;
-int selectioncodelol;
-bool przycskmachen = true;
-bool generatingQR = false;
-char combinedText[128];
+
 static u32 *SOC_buffer = NULL;
-
-GFX_TEXTBUF totpBuf;
-GFX_TEXTBUF g_staticBuf, kupon_text_Buf, themeBuf;
-GFX_TEXT g_staticText[100];
-GFX_TEXT themeText[100];
-GFX_TEXT g_totpText[5];
-
-
 
 u8* captureBuf = NULL;
 ndspWaveBuf captureWaveBuf; 
@@ -65,7 +41,6 @@ const u32 CAPTURE_SIZE = 0x500;
 
 float slider;
 bool saving_va = false;
-bool debug_stats = false;
 
 
 int main(int argc, char* argv[]) {
@@ -82,16 +57,6 @@ int main(int argc, char* argv[]) {
         printf("SOC init failed\n");
     }
 
-    totpBuf = GFX_TextBufNew(128);
-    g_staticBuf = GFX_TextBufNew(256);
-    kupon_text_Buf = GFX_TextBufNew(512);
-    themeBuf = GFX_TextBufNew(512);
-    
-    
-    GFX_TEXTBUF memBuf = GFX_TextBufNew(1024); 
-    GFX_TEXT memtext[6]; 
-    memset(memtext, 0, sizeof(memtext));
-
     consoleClear();
     start_request_thread();
  
@@ -100,7 +65,6 @@ int main(int argc, char* argv[]) {
 
     
     initCwavSystem();
-    Scene = 0;
     captureBuf = linearAlloc(CAPTURE_SIZE);
     
     memset(&captureWaveBuf, 0, sizeof(ndspWaveBuf)); 
@@ -116,7 +80,6 @@ int main(int argc, char* argv[]) {
 
 
     
-    GFX_TextBufClear(memBuf);
     FS_CheckIfInPostIstnieje();
 
     while (aptMainLoop()) {
@@ -138,11 +101,6 @@ int main(int argc, char* argv[]) {
 
     close_logger();
 
-    GFX_TextBufDelete(g_staticBuf);
-    GFX_TextBufDelete(kupon_text_Buf);
-    GFX_TextBufDelete(themeBuf);
-    GFX_TextBufDelete(totpBuf);
-    GFX_TextBufDelete(memBuf);
     socExit();
     if (SOC_buffer) free(SOC_buffer); 
 

@@ -11,7 +11,7 @@ void init_logger(void)
 u64 get_free_mem(void)
 {
     u64 freeMem = 0;
-    svcGetSystemInfo(&freeMem, 0, 1);
+    // svcGetSystemInfo(&freeMem, 0, 1);
     return freeMem;
 }
 

@@ -84,7 +84,7 @@ static bool paczkasparsed;
 static bool dissapeared2 = false;
 #define SPINNER_DOT_COUNT 12
 static float spinnerAngle = 0.0f;
-static float spinnerRadius = 20.0f;
+
 static float spinnerSpeed = 180.0f;
 static C2D_ImageTint dotTint;
 static C2D_ImageTint shadowTint; 
@@ -96,7 +96,7 @@ static GFX_TEXTBUF detailsTextBuf;
 static GFX_TEXTBUF eventListBuf;   
 static GFX_TEXTBUF LBuf; 
 
-static GFX_TEXT text_name, text_addr, text_status, date_addr, text_event_line, historyTxt; 
+static GFX_TEXT text_name, text_addr, text_status, date_addr, historyTxt; 
 
 static int pressedBtnId = 0; 
 
@@ -112,15 +112,6 @@ static float eventListScroll = 0.0f;
 static float eventListTargetScroll = 0.0f;
 static int touchLastY = 0;
 static bool isDraggingEvents = false;
-
-
-static bool inSettingsMode = false;
-
-static void openCredits(void) {
-    sceneManagerSwitchTo(SCENE_CREDITS);
-}
-
-static int initialVoiceAct = 0;
 
 
 static bool finishingOpenAnim = false;
@@ -349,7 +340,6 @@ void sceneSendInit(void) {
         }
     }
 
-    inSettingsMode = false;
 
 
     detailsTextBuf = GFX_TextBufNew(4096);

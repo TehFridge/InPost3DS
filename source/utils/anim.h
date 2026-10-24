@@ -6,6 +6,7 @@ typedef enum {
     EASE_OUT,
     EASE_IN_OUT,
     EASE_SMOOTHSTEP,
+    EASE_OUTBACKMM,
 } EaseType;
 
 typedef struct {

@@ -21,26 +21,17 @@
 #include "../libs/quirc.h"
 #include "../utils/utils.h"
 #include "../utils/lang.h"
+#include "../utils/anim.h"
 #define MAX_STARS 64
 
 bool musicisplaying = false;
 static u64 lastTick = 0;
 static float dt = 0.0f;
 
-
-float easeOutBackMM(float t) {
-    const float c1 = 1.70158f;
-    const float c3 = c1 + 1.0f;
-    float f = t - 1.0f;
-    return 1.0f + c3 * (f * f * f) + c1 * (f * f);
-}
-
-float easeOut(float start, float end, float t) {
-    float change = end - start;
-    float f = 1.0f - t;
-    return start + change * (1.0f - (f * f));
-}
-
+static Ease qr_ease;
+static Ease qr_ease2;
+static Ease flash_ease;
+static Ease outback_ease;
 
 float bounceScale = 1.2f;
 float bounceVelocity = -0.01f;
@@ -56,7 +47,6 @@ GFX_TEXT dmt_Text[50];
 
 float how_much_in_flash;
 bool flashActive;
-float FADE_DURATION;
 float scroll_speed;
 bool accelerating = true;
 const float base_speed = 1.0f;
@@ -66,9 +56,7 @@ const float decel_rate = 0.5f;
 float x_image = 0;
 float x_text = 160.0f;
 bool Show_PLZ_LOGIN;
-static char mybuf[60];
-static char mybuf2[60];
-static SwkbdState swkbd;
+
 SwkbdButton button = SWKBD_BUTTON_NONE;
 bool Sent_NRTEL;
 bool Sent_SMSCODE;
@@ -300,7 +288,10 @@ void updateSkaner(void)
 void sceneMainMenuInit(void) {
     lastTick = svcGetSystemTick();
     dt = 0.0f;
-    
+    qr_ease = initEase(1.2f, EASE_OUT);
+    flash_ease = initEase(0.7f, EASE_OUT);
+    qr_ease2 = initEase(1.2f, EASE_OUT);
+    outback_ease = initEase(0.4f, EASE_OUTBACKMM);
 	MainMenu = GFX_TextBufNew(2048);
     DebugMainText = GFX_TextBufNew(2048);
     GFX_TextBufClear(MainMenu);  
@@ -330,7 +321,6 @@ void sceneMainMenuInit(void) {
 
 	how_much_in_flash = 1.0f;
 	flashActive = false;
-	FADE_DURATION = 0.3f;
 	scroll_speed = 0.5f;
 	Show_PLZ_LOGIN = false;
 	Sent_NRTEL = false;
@@ -410,8 +400,8 @@ void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
             initSkaner();
             fadeTimer = 0.0f;
             how_much_in_flash = 0.005f;
-            FADE_DURATION = 0.65f;
             flashActive = true;
+            flash_ease = initEase(0.7f, EASE_OUT);
             Switching_To_MainScreen = true;
             
             
@@ -450,6 +440,7 @@ void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
             if (scroll_speed >= max_speed) {
                 scroll_speed = max_speed;
                 accelerating = false; 
+                // może to odkomentuje jak VA ściągne
                 // if (VOICEACT != 0) {
                 //     playCwav(29 + (va_offset * 26), true);
                 // }
@@ -473,19 +464,6 @@ void sceneMainMenuUpdate(uint32_t kDown, uint32_t kHeld) {
         
         if (Show_PLZ_LOGIN && easet >= 1.0f && !Sent_NRTEL){
             updateSkaner();
-            // swkbdInit(&swkbd, SWKBD_TYPE_NUMPAD, 1, 9);
-            // swkbdSetPasswordMode(&swkbd, SWKBD_PASSWORD_HIDE_DELAY);
-            // swkbdSetValidation(&swkbd, SWKBD_FIXEDLEN, 0, 0);
-            // swkbdSetFeatures(&swkbd, SWKBD_FIXED_WIDTH);
-            // button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
-            // sendNumerTel(mybuf);
-            // Sent_NRTEL = true;
-            // bounceTextActive = true;
-            // bounceTextTime = 0.0f;
-            // GFX_TextParse(&menu_Text[1], MainMenu, "Wprowadź Kod SMS");
-            // if (VOICEACT != 0) {
-            //     playCwav(30 + (va_offset * 26), true);
-            // }
         }
 
         if (auth_qr_verifier.done && !showTutorialConfirmation) {
@@ -561,17 +539,15 @@ void drawMainMenuTop(float offset) {
 	}
 
     if (flashActive) {
-		float fadeProgress = fadeTimer / FADE_DURATION;
-		if (fadeProgress > 1.0f) fadeProgress = 1.0f;
-
-		float fadeValue = 1.0f - fadeProgress; 
-		uint8_t alpha = (uint8_t)(fadeValue * 255.0f);
+        updateEase(&flash_ease);
+		uint8_t alpha = 255.0f - (uint8_t)(flash_ease.value * 255.0f);
 		GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, alpha));
 	}
 
     if (Show_PLZ_LOGIN) {
+        updateEase(&qr_ease);
         
-		float y = easeOut(400.0f, 20.0f, easet);
+		float y = 400.0f - 380.0f * qr_ease.value;
         if(is_scanning) {
             C2D_DrawImageAt(cam_image, (400.0f - (400.0f * 0.7f)) / 2, y + 40, 1.0f, NULL, 0.7f, 0.7f);
         }
@@ -608,13 +584,6 @@ void sceneMainMenuRender(void) {
 		bounceScale = 1.0f + 0.1f * sinf(10.0f * t * M_PI) * damping;
 	}
 
-    
-    if (flashActive) {
-        fadeTimer += dt;
-        if (fadeTimer >= FADE_DURATION) {
-            fadeTimer = FADE_DURATION;
-        }
-    }
 
     if (Show_PLZ_LOGIN) {
         if (bounceTextActive) {
@@ -661,7 +630,8 @@ void sceneMainMenuRender(void) {
 		GFX_DrawShadowedText(&menu_Text[0], x_text, 100.0f, 0.5f, 1.5f, 1.5f, GFX_ALIGN_CENTER, GFX_COLOR_RGBA(0xB1, 0xA2, 0x2F, dissapeared ? 0xff : 0x00), GFX_COLOR_RGBA(0xff, 0xff, 0xff, dissapeared ? 0xff : 0x00));
 	}
     if (Show_PLZ_LOGIN && !auth_qr_verifier.done) {
-        float y = easeOut(-400.0f, 0.0f, easet);
+        updateEase(&qr_ease2);
+        float y = -400 + 400.0f * qr_ease2.value;
 		GFX_DrawShadowedText(&menu_Text[3], 160.0f - 4, y + 10 + 4, 1.0f, 0.8f, 0.8f, GFX_ALIGN_CENTER, GFX_COLOR_RGBA(0x00, 0x00, 0x00, 0x2e), GFX_COLOR_RGBA(0x00, 0x00, 0x00, 0x2e));
 		GFX_DrawShadowedText(&menu_Text[3], 160.0f, y + 10, 1.0f, 0.8f, 0.8f, GFX_ALIGN_CENTER, GFX_COLOR_RGBA(0xB1, 0xA2, 0x2F, 0xff), GFX_COLOR_RGBA(0xff, 0xff, 0xff, 0xff));
 		GFX_DrawShadowedText(&menu_Text[4], 160.0f - 4 , y + 40 + 4, 1.0f, 0.5f, 0.5f, GFX_ALIGN_CENTER, GFX_COLOR_RGBA(0x00, 0x00, 0x00, 0x2e), GFX_COLOR_RGBA(0x00, 0x00, 0x00, 0x2e));
@@ -669,54 +639,56 @@ void sceneMainMenuRender(void) {
         GFX_DrawImageAt(helper_qr, 0.0f, y, 1.0f, NULL, 1.0f, 1.0f);
     }
     if (showTutorialConfirmation) {
-        float pT = tutorialPopupAnimTimer / TUTORIAL_POPUP_DURATION;
-        if (pT > 1.0f) pT = 1.0f;
-        float ease = easeOutBackMM(pT);
-        float alphaFactor = pT;
+        updateEase(&outback_ease);
+
+        float alphaFactor = outback_ease.value;
+        if (alphaFactor > 1.0f) alphaFactor = 1.0f;
+        if (alphaFactor < 0.0f) alphaFactor = 0.0f;
 
         u8 dimAlpha = (u8)(150.0f * alphaFactor);
-        GFX_DrawRectSolid(0, 0, 0.98f, 320, 240, GFX_COLOR_RGBA(0, 0, 0, dimAlpha));
-        
+        GFX_DrawRectSolid(0, 0, 0.98f, 320, 240,
+            GFX_COLOR_RGBA(0, 0, 0, dimAlpha));
+
         float mwW = 260.0f;
         float mwH = 100.0f;
-        
-        float curW = mwW * ease;
-        float curH = mwH * ease;
-        float curX = (320.0f - curW) / 2.0f; 
+
+        float curW = mwW * outback_ease.value;
+        float curH = mwH * outback_ease.value;
+        float curX = (320.0f - curW) / 2.0f;
         float curY = (240.0f - curH) / 2.0f;
 
         u8 bgAlpha = (u8)(255.0f * alphaFactor);
-        GFX_DrawRectSolid(curX, curY, 0.99f, curW, curH, GFX_COLOR_RGBA(255, 255, 255, bgAlpha));
-        
+        GFX_DrawRectSolid(curX, curY, 0.99f, curW, curH,
+            GFX_COLOR_RGBA(255, 255, 255, bgAlpha));
+
         GFX_TEXTBUF popupBuf = GFX_TextBufNew(512);
         GFX_TEXT qText, optText;
 
         GFX_TextParse(&qText, popupBuf, lang_strings[12]);
         GFX_TextParse(&optText, popupBuf, lang_strings[13]);
-        
+
         GFX_TextOptimize(&qText);
         GFX_TextOptimize(&optText);
-        
-        float tScale = 0.5f * ease;
-        if (tScale < 0) tScale = 0;
+
+        float tScale = 0.5f * outback_ease.value;
+        if (tScale < 0.0f) tScale = 0.0f;
 
         float wQ, hQ, wO, hO;
         GFX_TextGetDimensions(&qText, tScale, tScale, &wQ, &hQ);
         GFX_TextGetDimensions(&optText, tScale, tScale, &wO, &hO);
-        
+
         u32 txtColor = GFX_COLOR_RGBA(0, 0, 0, bgAlpha);
-        GFX_DrawText(&qText, 160.0f - (wQ/2), curY + (25.0f * ease), 1.0f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
-        GFX_DrawText(&optText, 160.0f - (wO/2), curY + (65.0f * ease), 1.0f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
-        
+
+        GFX_DrawText(&qText, 160.0f - (wQ / 2), curY + (25.0f * outback_ease.value),
+            1.0f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
+        GFX_DrawText(&optText, 160.0f - (wO / 2), curY + (65.0f * outback_ease.value),
+            1.0f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
+
         GFX_TextBufDelete(popupBuf);
     }
 
 	if (flashActive) {
-		float fadeProgress = fadeTimer / FADE_DURATION;
-		if (fadeProgress > 1.0f) fadeProgress = 1.0f;
-
-		float fadeValue = 1.0f - fadeProgress; 
-		uint8_t alpha = (uint8_t)(fadeValue * 255.0f);
+		uint8_t alpha = 255.0f - (uint8_t)(flash_ease.value * 255.0f);
         GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, alpha));
 	}
 }
@@ -749,8 +721,4 @@ void sceneMainMenuExit(void) {
         free(auth_qr_verifier.data);
         auth_qr_verifier.data = NULL;
     }
-    // if (send_kod_sms.data) {
-    //     free(send_kod_sms.data);
-    //     send_kod_sms.data = NULL;
-    // }
 }

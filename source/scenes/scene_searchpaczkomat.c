@@ -33,10 +33,9 @@ static GFX_TEXT result_desc_texts[MAX_PACZKOMAT_RESULTS];
 
 static float scroll_y = 0.0f;
 static float max_scroll_y = 0.0f;
-static float touch_drag_start_y = 0.0f;
-static float drag_distance = 0.0f;
+
 static bool is_dragging = false;
-static float scroll_velocity = 0.0f;
+
 
 bool returning_to_nadaj = false;
 

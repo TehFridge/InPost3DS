@@ -85,7 +85,7 @@ static bool paczkasparsed;
 static bool dissapeared2 = false;
 #define SPINNER_DOT_COUNT 12
 static float spinnerAngle = 0.0f;
-static float spinnerRadius = 20.0f;
+
 static float spinnerSpeed = 180.0f;
 static C2D_ImageTint dotTint;
 static C2D_ImageTint shadowTint; 
@@ -97,7 +97,7 @@ static GFX_TEXTBUF detailsTextBuf;
 static GFX_TEXTBUF eventListBuf;   
 static GFX_TEXTBUF RBuf;
 
-static GFX_TEXT text_name, text_addr, text_status, date_addr, text_event_line, historyTxt; 
+static GFX_TEXT text_name, text_addr, text_status, date_addr, historyTxt; 
 
 static int pressedBtnId = 0; 
 
@@ -999,49 +999,7 @@ static void drawHomeSceneContent(float offset, float transT, float finalZY) {
         GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, alpha));
     }
 }
-static void drawFancyButton(float x, float y, float w, float h, const char* text, bool isPressed, float alpha) {
-    if (alpha <= 0.0f) return;
 
-
-    float scale = isPressed ? 0.95f : 1.0f;
-
-
-    float centerX = x + (w / 2.0f);
-    float centerY = y + (h / 2.0f);
-    float scaledW = w * scale;
-    float scaledH = h * scale;
-    float finalX = centerX - (scaledW / 2.0f);
-    float finalY = centerY - (scaledH / 2.0f);
-
-    u8 a = (u8)(255 * alpha);
-    u8 shadowA = (u8)(100 * alpha);
-
-
-    if (!isPressed) {
-        GFX_DrawRectSolid(finalX + 2.0f, finalY + 2.0f, 0.9f, scaledW, scaledH, GFX_COLOR_RGBA(0, 0, 0, shadowA));
-    }
-
-
-    u32 borderColor = GFX_COLOR_RGBA(255, 204, 0, a);
-    GFX_DrawRectSolid(finalX - 1.0f, finalY - 1.0f, 0.9f, scaledW + 2.0f, scaledH + 2.0f, borderColor);
-
-
-    u32 bgColor = isPressed ? GFX_COLOR_RGBA(234, 234, 234, a) : GFX_COLOR_RGBA(254, 254, 254, a);
-    GFX_DrawRectSolid(finalX, finalY, 0.9f, scaledW, scaledH, bgColor);
-
-
-    GFX_TextBufClear(eventListBuf);
-    GFX_TEXT btnTxt;
-    GFX_TextParse(&btnTxt, eventListBuf, text);
-    GFX_TextOptimize(&btnTxt);
-
-
-    float txtW, txtH;
-    GFX_TextGetDimensions(&btnTxt, 0.5f, 0.5f, &txtW, &txtH);
-    u32 txtColor = GFX_COLOR_RGBA(205, 154, 0, a);
-
-    GFX_DrawText(&btnTxt, centerX - (txtW / 2.0f), centerY - (txtH / 2.0f), 0.95f, 0.5f, 0.5f, GFX_ALIGN_LEFT, txtColor);
-}
 void sceneHomeMenuRender(void) {
 
     bg_x2 -= scroll_speed2 * dtScale;
@@ -1102,7 +1060,6 @@ void sceneHomeMenuRender(void) {
 
 
         float yOffset = 20.0f * (1.0f - ease);
-        float btnAlpha = ease;
         refresh_btn.y = 5.0f + yOffset;
         credits_btn.y = 5.0f + yOffset;
         settings_btn.y = 5.0f + yOffset;
