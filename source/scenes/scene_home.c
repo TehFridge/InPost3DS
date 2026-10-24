@@ -21,9 +21,16 @@
 #include "../utils/utils.h"
 #include "../utils/button.h"
 #include "../utils/lang.h"
+#include "../utils/anim.h"
 
 extern int paczka_count;
 extern Paczka paczka_list[];
+
+static Ease trans_ease;
+static Ease trans2_ease;
+static Ease button_ease;
+static Ease base_ease;
+static Ease last_ease;
 
 static int formatIsoDateTime(const char* iso, char* out, size_t outsz) {
     if (!iso || !*iso || !out || outsz == 0) return 0;
@@ -143,18 +150,6 @@ static bool qrTexInitialized = false;
 
 static int cachedTextPaczkaIndex = -1;
 
-
-static float easeOutCubic(float t) {
-    float f = 1.0f - t;
-    return 1.0f - (f * f * f);
-}
-
-static float easeOutBack(float t) {
-    const float c1 = 1.70158f;
-    const float c3 = c1 + 1.0f;
-    float f = t - 1.0f;
-    return 1.0f + c3 * (f * f * f) + c1 * (f * f);
-}
 
 static void swizzleTexture(uint8_t* dst, const uint8_t* src, int width, int height) {
     int rowblocks = (width >> 3);
@@ -341,6 +336,11 @@ void sceneHomeMenuInit(void) {
     how_much_in_flash2 = 1.0f;
     FADE_DURATION2 = 0.6f;
     flashActive2 = true;
+    trans_ease = initEase(1.0f, EASE_OUT);
+    trans2_ease = initEase(0.6f, EASE_OUT);
+    button_ease = initEase(0.6f, EASE_OUT);
+    base_ease = initEase(0.6f, EASE_OUT);
+    last_ease = initEase(0.6f, EASE_OUTBACKMM);
     C2D_PlainImageTint(&dotTint, GFX_COLOR_RGBA(255, 255, 255, 255), 1.0f);
     C2D_PlainImageTint(&shadowTint, GFX_COLOR_RGBA(0, 0, 0, 80), 1.0f);
     tryToGetPaczkas = false;
@@ -933,13 +933,12 @@ static void drawHomeSceneContent(float offset, float transT, float finalZY) {
             GFX_COLOR_RGBA(0xff, 0xff, 0xff, 0xff)
         );
         if (transT > 0.0f) {
-            float t = fminf(transT * 1.2f, 1.0f);
-            float ease = easeOutCubic(t);
+            updateEase(&trans_ease);
             float centerX = 200.0f;
             float baseY   = 120.0f;
             float slideX  = 40.0f;
-            float historyX = centerX - (showingQrMode ? slideX * ease : slideX * (1.0f - ease));
-            float historyAlphaVal = showingQrMode ? (1.0f - ease) : ease;
+            float historyX = centerX - (showingQrMode ? slideX * trans_ease.value : slideX * (1.0f - trans_ease.value));
+            float historyAlphaVal = showingQrMode ? (1.0f - trans_ease.value) : trans_ease.value;
 
             if (historyAlphaVal < 0.0f) historyAlphaVal = 0.0f;
             if (historyAlphaVal > 1.0f) historyAlphaVal = 1.0f;
@@ -1010,16 +1009,13 @@ void sceneHomeMenuRender(void) {
     if (transT > 1.0f) transT = 1.0f;
     if (transT < 0.0f) transT = 0.0f;
 
-    float zAnimDuration = 0.8f;
     float zStartY = -240.0f;
     float zTargetY = 0.0f;
     float currentZY = zStartY;
 
     if (pkgAnimTimer > 0.0f) {
-            float t = pkgAnimTimer / zAnimDuration;
-            if (t > 1.0f) t = 1.0f;
-            float ease = easeOutCubic(t);
-            currentZY = zStartY - ((zStartY - zTargetY) * ease);
+        updateEase(&trans2_ease);
+        currentZY = zStartY - ((zStartY - zTargetY) * trans2_ease.value);
     }
 
     float flyUpOffset = 0.0f;
@@ -1053,13 +1049,9 @@ void sceneHomeMenuRender(void) {
 
     if (!inDetailsMode && transT < 0.1f) {
 
+        updateEase(&button_ease);
 
-        float btnAnimT = pkgAnimTimer / 0.5f;
-        if (btnAnimT > 1.0f) btnAnimT = 1.0f;
-        float ease = easeOutCubic(btnAnimT);
-
-
-        float yOffset = 20.0f * (1.0f - ease);
+        float yOffset = 20.0f * (1.0f - button_ease.value);
         refresh_btn.y = 5.0f + yOffset;
         credits_btn.y = 5.0f + yOffset;
         settings_btn.y = 5.0f + yOffset;
@@ -1076,7 +1068,6 @@ void sceneHomeMenuRender(void) {
         if (listAlpha > 0.05f) {
             float spacing = 114.0f;
             float startX = 25.0f;
-            float entryAnimDuration = 0.6f;
             float entryStaggerDelay = 0.15f;
             float startY = 260.0f;
             float targetY = 80.0f;
@@ -1088,11 +1079,9 @@ void sceneHomeMenuRender(void) {
                 float alpha = 0.0f;
 
                 if (myTime > 0.0f) {
-                    float t = myTime / entryAnimDuration;
-                    if (t > 1.0f) t = 1.0f;
-                    float baseEase = easeOutCubic(t);
-                    yPos = startY - ((startY - targetY) * baseEase);
-                    alpha = baseEase;
+                    updateEase(&base_ease);
+                    yPos = startY - ((startY - targetY) * base_ease.value);
+                    alpha = base_ease.value;
                 }
 
                 float flyDownOffset = 0.0f;
@@ -1243,7 +1232,7 @@ void sceneHomeMenuRender(void) {
     if (showOpenConfirmation || showPickupConfirmation) {
         float pT = popupAnimTimer / POPUP_ANIM_DURATION;
         if (pT > 1.0f) pT = 1.0f;
-        float ease = easeOutBack(pT);
+        updateEase(&last_ease);
         float alphaFactor = pT;
 
         u8 dimAlpha = (u8)(150.0f * alphaFactor);
@@ -1252,8 +1241,8 @@ void sceneHomeMenuRender(void) {
         float mwW = 260.0f;
         float mwH = 100.0f;
         
-        float curW = mwW * ease;
-        float curH = mwH * ease;
+        float curW = mwW * last_ease.value;
+        float curH = mwH * last_ease.value;
         float curX = (320.0f - curW) / 2.0f;
         float curY = (240.0f - curH) / 2.0f;
 
@@ -1273,7 +1262,7 @@ void sceneHomeMenuRender(void) {
         GFX_TextOptimize(&qText);
         GFX_TextOptimize(&optText);
         
-        float tScale = 0.5f * ease;
+        float tScale = 0.5f * last_ease.value;
         if (tScale < 0) tScale = 0;
 
         float wQ, hQ, wO, hO;
@@ -1281,8 +1270,8 @@ void sceneHomeMenuRender(void) {
         GFX_TextGetDimensions(&optText, tScale, tScale, &wO, &hO);
         
         u32 txtColor = GFX_COLOR_RGBA(0, 0, 0, bgAlpha);
-        GFX_DrawText(&qText, 160.0f - (wQ/2), curY + (20.0f * ease), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
-        GFX_DrawText(&optText, 160.0f - (wO/2), curY + (60.0f * ease), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
+        GFX_DrawText(&qText, 160.0f - (wQ/2), curY + (20.0f * last_ease.value), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
+        GFX_DrawText(&optText, 160.0f - (wO/2), curY + (60.0f * last_ease.value), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
     }
 
     if (inSettingsMode) {

@@ -20,9 +20,16 @@
 #include "../libs/cJSON.h"
 #include "../utils/utils.h"
 #include "../utils/lang.h"
+#include "../utils/anim.h"
 
 extern int paczka_count_sent;
 extern Paczka paczka_list_sent[];
+
+static Ease trans_ease;
+static Ease trans2_ease;
+static Ease button_ease;
+static Ease base_ease;
+static Ease last_ease;
 
 static int formatIsoDateTime(const char* iso, char* out, size_t outsz) {
     if (!iso || !*iso || !out || outsz == 0) return 0;
@@ -133,18 +140,6 @@ static bool qrTexInitialized = false;
 
 static int cachedTextPaczkaIndex = -1;
 
-
-static float easeOutCubic(float t) {
-    float f = 1.0f - t;
-    return 1.0f - (f * f * f);
-}
-
-static float easeOutBack(float t) {
-    const float c1 = 1.70158f;
-    const float c3 = c1 + 1.0f;
-    float f = t - 1.0f;
-    return 1.0f + c3 * (f * f * f) + c1 * (f * f);
-}
 
 static void swizzleTexture(uint8_t* dst, const uint8_t* src, int width, int height) {
     int rowblocks = (width >> 3);
@@ -330,7 +325,12 @@ void sceneSendInit(void) {
     cachedTextPaczkaIndex = -1;
     eventListScroll = 0.0f;
     eventListTargetScroll = 0.0f;
-
+    flashActive2 = true;
+    trans_ease = initEase(1.0f, EASE_OUT);
+    trans2_ease = initEase(0.6f, EASE_OUT);
+    button_ease = initEase(0.6f, EASE_OUT);
+    base_ease = initEase(0.6f, EASE_OUT);
+    last_ease = initEase(0.6f, EASE_OUTBACKMM);
     if (!musicisplaying) {
         CWAV* title = getCwav(1);
         if(title) {
@@ -764,13 +764,12 @@ static void drawHomeSceneContent(float offset, float transT, float finalZY) {
         );
 
         if (transT > 0.0f) {
-            float t = fminf(transT * 1.2f, 1.0f);
-            float ease = easeOutCubic(t);
+            updateEase(&trans_ease);
             float centerX = 200.0f;
             float baseY   = 120.0f;
             float slideX  = 40.0f;
-            float historyX = centerX - (showingQrMode ? slideX * ease : slideX * (1.0f - ease));
-            float historyAlphaVal = showingQrMode ? (1.0f - ease) : ease;
+            float historyX = centerX - (showingQrMode ? slideX * trans_ease.value : slideX * (1.0f - trans_ease.value));
+            float historyAlphaVal = showingQrMode ? (1.0f - trans_ease.value) : trans_ease.value;
 
             if (historyAlphaVal < 0.0f) historyAlphaVal = 0.0f;
             if (historyAlphaVal > 1.0f) historyAlphaVal = 1.0f;
@@ -883,16 +882,13 @@ void sceneSendRender(void) {
     if (transT > 1.0f) transT = 1.0f;
     if (transT < 0.0f) transT = 0.0f;
 
-    float zAnimDuration = 0.8f;
     float zStartY = -240.0f;
     float zTargetY = 0.0f;
     float currentZY = zStartY;
 
     if (pkgAnimTimer > 0.0f) {
-            float t = pkgAnimTimer / zAnimDuration;
-            if (t > 1.0f) t = 1.0f;
-            float ease = easeOutCubic(t);
-            currentZY = zStartY - ((zStartY - zTargetY) * ease);
+        updateEase(&trans2_ease);
+        currentZY = zStartY - ((zStartY - zTargetY) * trans2_ease.value);
     }
 
     float flyUpOffset = 0.0f;
@@ -925,17 +921,11 @@ void sceneSendRender(void) {
 
 
     if (!inDetailsMode && transT < 0.1f) {
+        updateEase(&button_ease);
 
+        float yOffset = 20.0f * (1.0f - button_ease.value);
 
-        float btnAnimT = pkgAnimTimer / 0.5f;
-        if (btnAnimT > 1.0f) btnAnimT = 1.0f;
-        float ease = easeOutCubic(btnAnimT);
-
-
-        float yOffset = 20.0f * (1.0f - ease);
-        float btnAlpha = ease;
-
-        drawFancyButton(250.0f, 5.0f + yOffset, 65.0f, 40.0f, "Nadaj", (pressedBtnId == 1), btnAlpha);
+        drawFancyButton(250.0f, 5.0f + yOffset, 65.0f, 40.0f, "Nadaj", (pressedBtnId == 1), button_ease.value);
     }
     if (paczkasparsed && paczka_count_sent > 0) {
         float listAlpha = 1.0f;
@@ -944,7 +934,6 @@ void sceneSendRender(void) {
         if (listAlpha > 0.05f) {
             float spacing = 114.0f;
             float startX = 25.0f;
-            float entryAnimDuration = 0.6f;
             float entryStaggerDelay = 0.15f;
             float startY = 260.0f;
             float targetY = 80.0f;
@@ -956,11 +945,9 @@ void sceneSendRender(void) {
                 float alpha = 0.0f;
 
                 if (myTime > 0.0f) {
-                    float t = myTime / entryAnimDuration;
-                    if (t > 1.0f) t = 1.0f;
-                    float baseEase = easeOutCubic(t);
-                    yPos = startY - ((startY - targetY) * baseEase);
-                    alpha = baseEase;
+                    updateEase(&base_ease);
+                    yPos = startY - ((startY - targetY) * base_ease.value);
+                    alpha = base_ease.value;
                 }
 
                 float flyDownOffset = 0.0f;
@@ -1090,51 +1077,6 @@ void sceneSendRender(void) {
         }
     }
 
-    if (showOpenConfirmation || showPickupConfirmation) {
-        float pT = popupAnimTimer / POPUP_ANIM_DURATION;
-        if (pT > 1.0f) pT = 1.0f;
-        float ease = easeOutBack(pT);
-        float alphaFactor = pT;
-
-        u8 dimAlpha = (u8)(150.0f * alphaFactor);
-        GFX_DrawRectSolid(0, 0, 0.96f, 320, 240, GFX_COLOR_RGBA(0, 0, 0, dimAlpha));
-        
-        float mwW = 260.0f;
-        float mwH = 100.0f;
-        
-        float curW = mwW * ease;
-        float curH = mwH * ease;
-        float curX = (320.0f - curW) / 2.0f;
-        float curY = (240.0f - curH) / 2.0f;
-
-        u8 bgAlpha = (u8)(255.0f * alphaFactor);
-        GFX_DrawRectSolid(curX, curY, 0.97f, curW, curH, GFX_COLOR_RGBA(255, 255, 255, bgAlpha));
-        
-        GFX_TEXT qText, optText;
-        GFX_TextBufClear(eventListBuf); 
-
-        if (showOpenConfirmation) {
-            GFX_TextParse(&qText, eventListBuf, "Czy chcesz otworzyć paczkomat?");
-        } else {
-            GFX_TextParse(&qText, eventListBuf, "Czy paczka została odebrana?");
-        }
-        GFX_TextParse(&optText, eventListBuf, "(A) Tak   (B) Nie");
-        
-        GFX_TextOptimize(&qText);
-        GFX_TextOptimize(&optText);
-        
-        float tScale = 0.5f * ease;
-        if (tScale < 0) tScale = 0;
-
-        float wQ, hQ, wO, hO;
-        GFX_TextGetDimensions(&qText, tScale, tScale, &wQ, &hQ);
-        GFX_TextGetDimensions(&optText, tScale, tScale, &wO, &hO);
-        
-        u32 txtColor = GFX_COLOR_RGBA(0, 0, 0, bgAlpha);
-        GFX_DrawText(&qText, 160.0f - (wQ/2), curY + (20.0f * ease), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
-        GFX_DrawText(&optText, 160.0f - (wO/2), curY + (60.0f * ease), 0.98f, tScale, tScale, GFX_ALIGN_LEFT, txtColor);
-    }
- 
     if (openingSpinnerAlpha > 0.0f) {
         u8 spinBgAlpha = (u8)(100.0f * openingSpinnerAlpha);
         GFX_DrawRectSolid(0, 0, 0.985f, 320, 240, GFX_COLOR_RGBA(0, 0, 0, spinBgAlpha));
