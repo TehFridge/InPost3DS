@@ -23,8 +23,7 @@ static inline float easeValue(EaseType type, float t)
 
         case EASE_OUTBACKMM:
         {
-            float x = t - 1.0f;
-            return 1.0f + x * x * (2.70158f * x + 1.70158f);
+            return 1.0f + (t - 1.0f) * (t - 1.0f) * (2.70158f * (t - 1.0f) + 1.70158f);
         }
 
         default:
