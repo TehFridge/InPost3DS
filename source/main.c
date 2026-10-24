@@ -90,7 +90,6 @@ int main(int argc, char* argv[]) {
             break;
         #ifdef DEBUG
             if ((kDown & KEY_Y) && debugmode){
-                debug_stats = !debug_stats;
                 logplz = !logplz;
             }
         #endif

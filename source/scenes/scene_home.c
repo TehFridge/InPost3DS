@@ -339,7 +339,7 @@ void sceneHomeMenuInit(void) {
     trans_ease = initEase(1.0f, EASE_OUT);
     trans2_ease = initEase(0.6f, EASE_OUT);
     button_ease = initEase(0.6f, EASE_OUT);
-    base_ease = initEase(0.6f, EASE_OUT);
+    base_ease = initEase(1.0f, EASE_OUT);
     last_ease = initEase(0.6f, EASE_OUTBACKMM);
     C2D_PlainImageTint(&dotTint, GFX_COLOR_RGBA(255, 255, 255, 255), 1.0f);
     C2D_PlainImageTint(&shadowTint, GFX_COLOR_RGBA(0, 0, 0, 80), 1.0f);
@@ -691,6 +691,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                 if (showingQrMode) {
                     showingQrMode = false;
                 } else {
+                    trans_ease = initEase(1.0f, EASE_OUT);
                     inDetailsMode = false;
                     is_in_open_paczkomat_flow = false;
                 }
@@ -709,6 +710,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                                     playCwav(27 + (va_offset2 * 26), false);
                                     break;
                             }
+                            last_ease = initEase(0.6f, EASE_OUTBACKMM);
                             showOpenConfirmation = true;
                             popupAnimTimer = 0.0f;
                             playCwav(4, true);
@@ -773,6 +775,11 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                 if (refresh_btn.clicked) {
                     if (osGetWifiStrength() > 0) {
                         if (paczkasparsed && pers_data_done) {
+                            trans_ease = initEase(1.0f, EASE_OUT);
+                            trans2_ease = initEase(0.6f, EASE_OUT);
+                            button_ease = initEase(0.6f, EASE_OUT);
+                            base_ease = initEase(1.0f, EASE_OUT);
+                            last_ease = initEase(0.6f, EASE_OUTBACKMM);
                             tryToGetPaczkas = false;
                             paczkas.done = false;
                             paczkasparsed = false;
@@ -826,6 +833,7 @@ void sceneHomeMenuUpdate(uint32_t kDown, uint32_t kHeld) {
                 }
 
                 if (kDown & KEY_A) {
+                    trans_ease = initEase(1.0f, EASE_OUT);
                     inDetailsMode = true;
                     showingQrMode = false;
                     eventListScroll = 0.0f;
@@ -934,11 +942,18 @@ static void drawHomeSceneContent(float offset, float transT, float finalZY) {
         );
         if (transT > 0.0f) {
             updateEase(&trans_ease);
+
             float centerX = 200.0f;
             float baseY   = 120.0f;
             float slideX  = 40.0f;
-            float historyX = centerX - (showingQrMode ? slideX * trans_ease.value : slideX * (1.0f - trans_ease.value));
-            float historyAlphaVal = showingQrMode ? (1.0f - trans_ease.value) : trans_ease.value;
+
+            float historyX = centerX - (inDetailsMode
+                ? slideX * (1.0f - trans_ease.value)
+                : slideX * trans_ease.value);
+
+            float historyAlphaVal = inDetailsMode
+                ? trans_ease.value
+                : (1.0f - trans_ease.value);
 
             if (historyAlphaVal < 0.0f) historyAlphaVal = 0.0f;
             if (historyAlphaVal > 1.0f) historyAlphaVal = 1.0f;
@@ -1061,53 +1076,78 @@ void sceneHomeMenuRender(void) {
             Draw_button(&settings_btn);
         }
     }
+
     if (paczkasparsed && paczka_count > 0) {
-        float listAlpha = 1.0f;
-        if (transT > 0.0f) listAlpha = 1.0f - transT;
+        float listAlpha = 1.0f - transT;
+        if (listAlpha < 0.0f) listAlpha = 0.0f;
+        if (listAlpha > 1.0f) listAlpha = 1.0f;
 
         if (listAlpha > 0.05f) {
-            float spacing = 114.0f;
-            float startX = 25.0f;
-            float entryStaggerDelay = 0.15f;
-            float startY = 260.0f;
-            float targetY = 80.0f;
+            const float spacing = 114.0f;
+            const float startX = 25.0f;
+            const float entryStaggerDelay = 0.15f;
+            const float entryDuration = 0.4f;
+            const float startY = 260.0f;
+            const float targetY = 80.0f;
+
+            float exitT = transT;
+            if (exitT < 0.0f) exitT = 0.0f;
+            if (exitT > 1.0f) exitT = 1.0f;
+
+            float exitEase = exitT * exitT * exitT;
+            float flyDownOffset = 200.0f * exitEase;
 
             for (int i = 0; i < paczka_count; i++) {
-                float currentY = startY;
                 float myTime = pkgAnimTimer - (i * entryStaggerDelay);
-                float yPos = startY;
-                float alpha = 0.0f;
 
-                if (myTime > 0.0f) {
-                    updateEase(&base_ease);
-                    yPos = startY - ((startY - targetY) * base_ease.value);
-                    alpha = base_ease.value;
-                }
+                if (myTime <= 0.0f)
+                    continue;
 
-                float flyDownOffset = 0.0f;
-                if (transT > 0.0f) {
-                     float ease = transT * transT * transT;
-                     flyDownOffset = 200.0f * ease;
-                     alpha *= (1.0f - ease);
-                }
-                currentY = yPos + flyDownOffset;
+                float t = myTime / entryDuration;
+                if (t > 1.0f) t = 1.0f;
 
-                if (currentY < 260.0f && alpha > 0.0f) {
-                    float drawX = startX + (i * spacing) - bottomCameraX;
-                    C2D_ImageTint pkgTint;
-                    C2D_AlphaImageTint(&pkgTint, alpha);
-                    C2D_ImageTint shdwTint;
-                    C2D_PlainImageTint(&shdwTint, GFX_COLOR_RGBA(0, 0, 0, (u8)(alpha * 80.0f)), 1.0f);
+                float invT = 1.0f - t;
+                float ease = 1.0f - invT * invT * invT;
 
-                    GFX_DrawImageAt(paczka_closed, drawX + 5.0f, currentY + 5.0f, 0.5f, &shdwTint, 1.0f, 1.0f);
-                    GFX_DrawImageAt(paczka_closed, drawX, currentY, 0.5f, &pkgTint, 1.0f, 1.0f);
-                    if (i == selectedPaczkaIndex && !inDetailsMode) {
-                        GFX_DrawImageAt(paczka_sel, drawX - 17.0f, currentY - 17.0f, 0.4f, &pkgTint, 1.0f, 1.0f);
-                    }
+                float yPos = startY - ((startY - targetY) * ease);
+                float alpha = ease * listAlpha * (1.0f - exitEase);
+                float currentY = yPos + flyDownOffset;
+
+                if (currentY >= 260.0f || alpha <= 0.0f)
+                    continue;
+
+                float drawX = startX + (i * spacing) - bottomCameraX;
+
+                C2D_ImageTint pkgTint;
+                C2D_AlphaImageTint(&pkgTint, alpha);
+
+                C2D_ImageTint shdwTint;
+                C2D_PlainImageTint(
+                    &shdwTint,
+                    GFX_COLOR_RGBA(0, 0, 0, (u8)(alpha * 80.0f)),
+                    1.0f
+                );
+
+                GFX_DrawImageAt(
+                    paczka_closed, drawX + 5.0f, currentY + 5.0f,
+                    0.5f, &shdwTint, 1.0f, 1.0f
+                );
+
+                GFX_DrawImageAt(
+                    paczka_closed, drawX, currentY,
+                    0.5f, &pkgTint, 1.0f, 1.0f
+                );
+
+                if (i == selectedPaczkaIndex && !inDetailsMode) {
+                    GFX_DrawImageAt(
+                        paczka_sel, drawX - 17.0f, currentY - 17.0f,
+                        0.4f, &pkgTint, 1.0f, 1.0f
+                    );
                 }
             }
         }
     }
+
 
     if (transT > 0.0f) {
         float fInv = 1.0f - transT;
