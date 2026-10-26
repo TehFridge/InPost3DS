@@ -11,7 +11,7 @@
 #include "scene_mainmenu.h"
 #include "../HAL/drawing.h"
 #include "../utils/lang.h"
-
+#include "../utils/anim.h"
 
 
 #define STATE_FLASH      0
@@ -21,7 +21,7 @@
 
 
 static int sceneState = 0;
-static float flashAlpha = 255.0f; 
+static Ease flash;
 static float logoAlpha = 0.0f;    
 static float waveAlpha = 0.0f;    
 static float scrollY = 480.0f;    
@@ -301,7 +301,6 @@ void drawCaptureWaveform(float alphaVal) {
 void sceneCreditsInit(void) {
     
     sceneState = STATE_FLASH;
-    flashAlpha = 255.0f;
     logoAlpha = 0.0f;
     waveAlpha = 0.0f; 
     scrollY = 480.0f; 
@@ -309,6 +308,7 @@ void sceneCreditsInit(void) {
     stateTimer = 0;
     sceneStartTime = osGetTime(); 
     musicStarted = false;
+    flash = initEase(1.3f, EASE_OUT);
 
     
     creditBuf = GFX_TextBufNew(4096);
@@ -333,7 +333,7 @@ void sceneCreditsInit(void) {
 }
 
 void sceneCreditsUpdate(uint32_t kDown, uint32_t kHeld) {
-    
+    updateEase(&flash);
     if (kDown & (KEY_B | KEY_START)) {
         sceneManagerSwitchTo(SCENE_HOME_MENU); 
         return; 
@@ -352,10 +352,7 @@ void sceneCreditsUpdate(uint32_t kDown, uint32_t kHeld) {
 
     
     if (sceneState == STATE_FLASH) {
-        if (flashAlpha > 0.0f) {
-            flashAlpha -= 5.0f; 
-            if (flashAlpha < 0.0f) flashAlpha = 0.0f;
-        } else {
+        if (flash.value == 1.0f) {
             sceneState = STATE_LOGO_FADE;
         }
     }
@@ -476,8 +473,8 @@ void sceneCreditsRender(void) {
     
     drawTopContent(0.0f, logoAlphaVal);
     
-    if (flashAlpha > 0.0f) {
-        GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, (u8)flashAlpha));
+    if (flash.value != 1.0f) {
+        GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, (255 - flash.value * 255.0f)));
     }
 
     
@@ -486,8 +483,8 @@ void sceneCreditsRender(void) {
         
         drawTopContent(slider * -5.0f, logoAlphaVal); 
         
-        if (flashAlpha > 0.0f) {
-            GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, (u8)flashAlpha));
+        if (flash.value != 1.0f) {
+            GFX_DrawRectSolid(0, 0, 1.0f, 400, 240, GFX_COLOR_RGBA(255, 255, 255, (255 - flash.value * 255.0f)));
         }
     }
 
@@ -496,8 +493,8 @@ void sceneCreditsRender(void) {
      
     drawBottomContent();
     
-    if (flashAlpha > 0.0f) {
-        GFX_DrawRectSolid(0, 0, 0, 320, 240, GFX_COLOR_RGBA(255, 255, 255, (u8)flashAlpha));
+    if (flash.value != 1.0f) {
+        GFX_DrawRectSolid(0, 0, 0, 320, 240, GFX_COLOR_RGBA(255, 255, 255, (255 - flash.value * 255.0f)));
     }
 }
 

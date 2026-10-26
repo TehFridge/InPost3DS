@@ -54,11 +54,6 @@ void GFX_DrawRectSolid(float x, float y, float depth, int w, int h, u32 color){
 
 void GFX_InitGfx(){
     gfxInitDefault();
-    PrintConsole topConsole;
-    consoleInit(GFX_TOP, &topConsole);
-    gfxExit();
-    
-    gfxInitDefault();
     gfxSet3D(false);
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
     C2D_Init(C2D_DEFAULT_MAX_OBJECTS);

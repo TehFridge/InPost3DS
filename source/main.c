@@ -24,12 +24,6 @@
 #define SOC_ALIGN       0x1000
 #define SOC_BUFFERSIZE  0x300000
 
-
-struct memory {
-    char *response;
-    size_t size;
-};
-
 extern int cwavCount;
 size_t linear_bytes_used = 0;
 
